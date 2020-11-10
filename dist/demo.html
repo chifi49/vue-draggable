@@ -1,0 +1,19 @@
+<meta charset="utf-8">
+<title>vue-draggable demo</title>
+<script src="https://unpkg.com/vue"></script>
+<script src="./vue-draggable.umd.js"></script>
+
+<link rel="stylesheet" href="./vue-draggable.css">
+
+
+<div id="app">
+  <demo></demo>
+</div>
+
+<script>
+new Vue({
+  components: {
+    demo: vue-draggable
+  }
+}).$mount('#app')
+</script>
