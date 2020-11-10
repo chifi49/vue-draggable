@@ -49,6 +49,11 @@ export default{
             required:false,
             type:Boolean,
             default:false
+        },
+        containment:{
+            required:false,
+            type:String,
+            default:'body'
         }
     },
     data(){
@@ -57,6 +62,8 @@ export default{
             dragElement:null,
             cloneElement:null,
             domHandle:null, //from where to drag
+            containmentElement:null,
+            containmentRect:null,
             original_target:null,
             orginal_handle:null,
             isDragging:false,
@@ -88,6 +95,8 @@ export default{
             this.elementY = dim.top;
             this.elementDiffX = event.pageX - dim.left;
             this.elementDiffY = event.pageY - dim.top;
+
+            this.containmentRect = this.containmentElement.getBoundingClientRect();
 
             document.addEventListener('mousemove',this.dragMove)
             document.addEventListener('touchmove',this.dragMove);
@@ -134,6 +143,14 @@ export default{
 
                 var finalX = pageX - this.elementDiffX;
                 var finalY = pageY - this.elementDiffY;
+
+                //check the containment, if we are inside the bounds of permitted dragging area
+                if(finalX<this.containmentRect.left || finalX+this.dragElement.offsetWidth>this.containmentRect.left+this.containmentRect.width
+            || finalY<this.containmentRect.top || finalY+this.dragElement.offsetHeight>this.containmentRect.top+this.containmentRect.height){
+                return;//do not drag outside containment
+            }
+
+
                 //console.log(diffX, diffY);
                 if(this.axis=='xy' || this.axis=='x'){
                     this.dragElement.style.left = finalX+'px';
@@ -171,10 +188,12 @@ export default{
         dragEnd(event){
             event.preventDefault();
             //console.log(event);
+            var drag_element = this.dragElement;
             if(this.clone){
                 document.body.removeChild(this.dragElement);
-                this.dragElement = null;
+                
             }
+            this.dragElement = null;
             this.dsDom.style.position = 'absolute';
 
             var pageX = event.touches && event.touches.length>0?event.touches[0].pageX:event.pageX;
@@ -187,8 +206,11 @@ export default{
                 this.dsDom.style.top = pageY - this.elementDiffY+'px';
             }
             if(this.isDroppable && this.dropped_area!=null){
+                this.$emit('isDropped',{instance:this,areaElement:this.dropped_area.el,dragElement:drag_element,clone:this.clone})
                 console.log('dropped too');
+                this.dropped_area.el.classList.remove('vue-dropping');
                 this.dropped_area.el.appendChild(this.dsDom);
+                this.dsDom.style.position = this.cssPosition;
             }else if(this.isDroppable){
                 //return to previous position
                 this.dsDom.style.position = this.cssPosition;
@@ -229,17 +251,12 @@ export default{
         },
         contains(droppable,draggable){
             var dim = droppable.dim;
-           // console.log(droppable.)
-            //console.log(dim, draggable);
-            //console.log(draggable);
-            if(dim.left<draggable.left+draggable.width && dim.left+dim.width>draggable.left 
-            && dim.top<draggable.top+draggable.height && dim.top+dim.height>draggable.top){
+           
+            if(dim.left<draggable.left+(draggable.width/2) && dim.left+dim.width>draggable.left+(draggable.width/2) 
+            && dim.top<draggable.top+(draggable.height/2) && dim.top+dim.height>draggable.top+(draggable.height/2)){
                 return true;
             }
-            if( ( dim.left<draggable.left+draggable.width && dim.left+dim.offsetWidth>draggable.left+draggable.width )
-            ||  ( dim.left+droppable.offsetWidth< dim.left) ){
-                return true;
-            }
+            
             return false;
         }
     },
@@ -273,8 +290,11 @@ export default{
         if(this.dropareas.length>0){
             this.isDroppable = true;
         }
+        
+        this.containmentElement = document.querySelector(this.containment);
+        
         this.cssPosition = this.dsDom.style.position;
-        console.log(this.cssPosition);
+        
         //console.log(this.dsDom);
         this.setupEventHandlers();
     }
