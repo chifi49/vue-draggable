@@ -1,13 +1,32 @@
 <template>
-    <span>
+    <span v-if="tag=='span'">
         <slot></slot>
     </span>
+    <li v-else-if="tag=='li'">
+        <slot></slot>
+    </li>
+    <div v-else-if="tag=='div'">
+        <slot></slot>
+    </div>
+    <div v-else-if="tag=='tr'">
+        <slot></slot>
+    </div>
 </template>
 <script>
 import Vue from 'vue';
 export default{
     name:'vue-draggable',
     props:{
+        tag:{
+            required:false,
+            type:String,
+            default:'span'
+        },
+        zindex:{
+            required:false,
+            type:Number,
+            default:100 //what z-index to set while dragging
+        },
         axis:{
             required:false,
             type:String,
@@ -18,11 +37,7 @@ export default{
             type:Number,
             default:10
         },
-        target:{
-            required:false,
-            type:String,
-            default:''
-        },
+        
         draghandle:{
             required:false,
             type:String,
@@ -32,6 +47,11 @@ export default{
             required:false,
             type:Boolean,
             default:false
+        },
+        clone_element:{
+            required:false,
+            type:Function,
+            default:null
         },
         clone_opacity:{
             required:false,
@@ -45,7 +65,17 @@ export default{
                 return [];
             }
         },
-        ghost:{ //drag but after you drop, return to its first position
+        dropping_element:{
+            required:false,
+            type:Function,
+            default:function(){
+                var div = document.createElement('div');
+                div.style.cssText = 'height:20px;border:dashed 2px #afafaf';
+                div.classList.add('vue-dropping-ghost');
+                return div;
+            }
+        },
+        drop_ghost:{ //drag but after you drop, return to its first position
             required:false,
             type:Boolean,
             default:false
@@ -62,6 +92,7 @@ export default{
             dragElement:null,
             cloneElement:null,
             domHandle:null, //from where to drag
+            droppingElement:null,
             containmentElement:null,
             containmentRect:null,
             original_target:null,
@@ -82,6 +113,11 @@ export default{
     methods:{
         dragStarted(event){
             event.preventDefault();
+            
+
+            if( (event.which && event.which==3) || (event.button && event.button==2)){//should not detect right clicks as mousedown for dragging
+                return;
+            }
 
             this.isDroppable = false;
             this.dropped_area = null;
@@ -126,18 +162,22 @@ export default{
                     this.getDropAreas();
                 }
                 if(this.clone && this.dragElement==null){
-                    var dim = this.dsDom.getBoundingClientRect();
-                    this.dragElement = this.dsDom.cloneNode(true);
-                    this.dragElement.style.opacity = this.clone_opacity;
-                    this.dragElement.style.position='absolute';
-                    this.dragElement.style.left = dim.left+'px';
-                    this.dragElement.style.top = dim.top+'px';
+                    if(this.clone_element!=null){
+                        this.dragElement = this.clone_element({instance:this,el: this.dsDom});
+                    }else{
+                        var dim = this.dsDom.getBoundingClientRect();
+                        this.dragElement = this.dsDom.cloneNode(true);
+                        this.dragElement.style.opacity = this.clone_opacity;
+                        this.dragElement.style.position='absolute';
+                        this.dragElement.style.left = dim.left+'px';
+                        this.dragElement.style.top = dim.top+'px';
+                    }
                     document.body.appendChild(this.dragElement);
 
-                    this.$emit('dragStarted',{instance:this,dragElement: this.dragElement, clone: this.clone})
+                    this.$emit('drag_started',{instance:this,dragElement: this.dragElement, clone: this.clone})
                 }else if(this.dragElement==null){
                     this.dragElement = this.dsDom;
-                    this.$emit('dragStarted',{instance:this,dragElement: this.dragElement, clone:this.clone})
+                    this.$emit('drag_started',{instance:this,dragElement: this.dragElement, clone:this.clone})
                 }
                 this.dragElement.style.position='absolute';
 
@@ -159,10 +199,11 @@ export default{
                     this.dragElement.style.top = finalY+'px';
                 }
 
-                this.$emit('isDragging',{instance:this, dragElement: this.dragElement, clone: this.clone, coords:{x:finalX,y:finalY}})
+                this.$emit('dragging',{instance:this, dragElement: this.dragElement, clone: this.clone, coords:{x:finalX,y:finalY},nativeEvent: event})
 
                 if(this.isDroppable){
                     //find in which droppable we are contained
+                    var is_contained = false;
                     for(var d=0;d<this.drop_areas.length;d++){
                         var drop_area = this.drop_areas[d];
                         //console.log(drop_area);
@@ -174,25 +215,66 @@ export default{
                         };
                         
                         if(this.contains(drop_area,draggable)){ 
+                            
+                            is_contained = true;
                             drop_area.el.classList.add('vue-dropping');
                             this.dropped_area = drop_area;
-                            this.$emit('isDropping',{instance:this,dragElement:this.dragElement,clone:this.clone,areaElement: drop_area.el})    
+                            //if we have not marked as active drop area, mark it (so we do not send none stop drop enter event)
+                            //also we do not need to recreate the ghost dropping_element again and again, one time is enought
+                            if(!drop_area.active){
+                                drop_area.active = true;
+                                drop_area.createDroppingElement();
+                                this.$emit('drop_enter',{instance:this, dragElement:this.dragElement,clone:this.clone,areaElement: drop_area.el});    
+                                this.drop_areas[d] = drop_area;
+                            }else{
+                                this.$emit('dropping',{instance:this, dragElement:this.dragElement, clone:this.clone, areaElement: drop_area.el});
+                            }
                         }else{
+                            is_contained = false;
+                            /**
+                            if(drop_area.active){
+                                if(drop_area.dropping_element!=null){
+                                    drop_area.el.removeChild(drop_area.dropping_element);
+                                    drop_area.dropping_element = null;
+                                }
+                                this.$emit('drop_exit',{instance:this, dragElement:this.dragElement, clone:this.clone, areaElement: drop_area.el});
+                                drop_area.active= false;
+                                this.drop_areas[d] = drop_area;
+                            }
                             drop_area.el.classList.remove('vue-dropping')
+                            **/
+                        }
+
+                    }//for
+                    console.log('contained',is_contained);
+                    //loop through all the drop_areas and any drop_area that is not currently active
+                    //remove its active state and remove also any ghost dropping element
+                    for(var dd=0;dd<this.drop_areas.length;dd++){
+                        if(this.drop_areas[dd]!=this.dropped_area && this.drop_areas[dd].active){
+                            this.drop_areas[dd].el.classList.remove('vue-dropping');
+                            this.drop_areas[dd].active = false;
+                            this.drop_areas[dd].removeDroppingElement();
                         }
                     }
-                }
+                    
+
+                }//if(this.isDroppable)
                 
-            }
+            }//if(this.isDragging)
         },
         dragEnd(event){
             event.preventDefault();
+            
+            /** CHECK IF WE WERE DRAGGING vis isDragging, because might never started */
             //console.log(event);
+            if(this.isDragging){
             var drag_element = this.dragElement;
-            if(this.clone){
+            if(this.clone && this.isDragging){ //be sure to remove clone element if we indeed dragged
                 document.body.removeChild(this.dragElement);
                 
             }
+
+            
             this.dragElement = null;
             this.dsDom.style.position = 'absolute';
 
@@ -206,20 +288,38 @@ export default{
                 this.dsDom.style.top = pageY - this.elementDiffY+'px';
             }
             if(this.isDroppable && this.dropped_area!=null){
-                this.$emit('isDropped',{instance:this,areaElement:this.dropped_area.el,dragElement:drag_element,clone:this.clone})
-                console.log('dropped too');
-                this.dropped_area.el.classList.remove('vue-dropping');
-                this.dropped_area.el.appendChild(this.dsDom);
-                this.dsDom.style.position = this.cssPosition;
+                this.$emit('dropped',{instance:this,areaElement:this.dropped_area.el,dragElement:drag_element,clone:this.clone})
+                
+                
+                //console.log('dropped too');
+
+
+                //this.dropped_area.el.classList.remove('vue-dropping');
+
+                //remove the dropping_element
+                //this.dropped_area.el.removeChild(this.dropped_area.dropping_element);
+                //if we are acting as a ghost then do not append the element in the droppable area and return it
+                //to its previous position, we are responsible to create the element we want in the dropped area
+                if(!this.drop_ghost){
+                   // alert('done');
+                    this.dropped_area.el.appendChild(this.dsDom);
+                    this.dsDom.style.position = this.cssPosition;
+                }else if(this.drop_ghost){
+                    this.dsDom.style.position = this.cssPosition;
+                }
             }else if(this.isDroppable){
                 //return to previous position
                 this.dsDom.style.position = this.cssPosition;
             }
-            this.isDroppable = false;
+            }
             this.isDragging = false;
+            this.isDroppable = false;
+            //this.isDragging = false;
             this.dropped_area = null;
+            this.$emit('drag_ended');
+            this.resetDropAreas();
             document.removeEventListener('mousemove',this.dragMove);
-            document.removeEventListener('mouseup',this.dragEnd)
+            document.removeEventListener('mouseup',this.dragEnd);
         },
         setupEventHandlers(){
             this.dsDom.addEventListener('mousedown',this.dragStarted)
@@ -232,18 +332,43 @@ export default{
             var d = new Date();
             return 'vdraggable-'+d.getMilliseonds();
         },
+        resetDropAreas(){
+            console.log('resetdropareas');
+            for(var d=0;d<this.drop_areas.length;d++){
+                this.drop_areas[d].el.classList.remove('vue-dropping');
+                this.drop_areas[d].active = false;
+                //ean exo dropping element dimiourgimeno, katestrepse to
+                if(this.drop_areas[d].dropping_element!=null){
+                    this.drop_areas[d].removeDroppingElement();
+                }
+            }
+            this.drop_areas = [];
+        },
         getDropAreas(){
             this.isDroppable = false;
             if(this.dropareas.length==0){
                 return;
             }
            var areas = document.querySelectorAll(this.dropareas.join(','));
-           [].forEach.call(areas,(el)=>{
+           var me = this;
+           [].forEach.call(areas,function(el){
                var drop = {
                    el: el,
-                   dim: el.getBoundingClientRect()
+                   dim: el.getBoundingClientRect(),
+                   active: false,
+                   dropping_element:null, //holds a reference to dropping element in order to remove it
+                   removeDroppingElement:function(){
+                       if(this.dropping_element!=null){
+                           this.el.removeChild(this.dropping_element);
+                           this.dropping_element = null;
+                       }
+                   },
+                   createDroppingElement:function(){
+                       this.dropping_element = me.dropping_element();
+                       this.el.appendChild(this.dropping_element);
+                   }
                };
-               this.drop_areas.push(drop);
+               me.drop_areas.push(drop);
            })
            if(this.drop_areas.length>0){
                this.isDroppable = true;
@@ -252,8 +377,8 @@ export default{
         contains(droppable,draggable){
             var dim = droppable.dim;
            
-            if(dim.left<draggable.left+(draggable.width/2) && dim.left+dim.width>draggable.left+(draggable.width/2) 
-            && dim.top<draggable.top+(draggable.height/2) && dim.top+dim.height>draggable.top+(draggable.height/2)){
+            if(dim.left<draggable.left+(draggable.width/1.5) && dim.left+dim.width>draggable.left+(draggable.width/1.5) 
+            && dim.top<draggable.top+(draggable.height/1.5) && dim.top+dim.height>draggable.top+(draggable.height/1.5)){
                 return true;
             }
             
@@ -280,9 +405,7 @@ export default{
         //console.log(this.$slots.default);
         if(typeof this.$slots.default!=='undefined' && this.$slots.default.length>0){
             //console.log(this.$slots.default);
-            this.dsDom = this.$slots.default[0].elm;
-        }else if(this.target!='' && typeof this.target=='string'){
-            this.dsDom = document.querySelector(this.target)
+            this.dsDom = this.$el;//this.$slots.default[0].elm;
         }
         if(this.draghandle!='' && this.dsDom!=null){
             this.domHandle = this.dsDom.querySelector(this.draghandle);
@@ -294,7 +417,7 @@ export default{
         this.containmentElement = document.querySelector(this.containment);
         
         this.cssPosition = this.dsDom.style.position;
-        
+        console.log('ghost',this.drop_ghost);
         //console.log(this.dsDom);
         this.setupEventHandlers();
     }
