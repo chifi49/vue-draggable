@@ -113,6 +113,10 @@ default: 20
 how many pixels to move from the original position before dragging starts
 
 the opacity of the dragging element
+#### draghandle
+default: '' (empty)
+
+accepts a css selector which will serve as the handle for dragging and not the original element
 #### drop_areas
 default: []
 
