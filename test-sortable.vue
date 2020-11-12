@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <heading :size="5" link="https://www.google.com" link_target="_blank" :placeholder="'<span>{{text}}</span>'" text="Visit Google" />
+        <heading :size="5" link="https://vue-draggable-demo.vercel.app/" link_target="_blank" :placeholder="'<span>{{text}}</span>'" text="Visit Docs" />
         <table width="100%">
             <tr valign="top">
                 <td width="45%">
