@@ -107,6 +107,11 @@ methods:{
 #### clone_opacity
 default: 0.5
 
+#### offset
+default: 20
+
+how many pixels to move from the original position before dragging starts
+
 the opacity of the dragging element
 #### drop_areas
 default: []

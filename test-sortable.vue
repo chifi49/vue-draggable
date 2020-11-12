@@ -6,9 +6,11 @@
                 <td width="45%">
                     <ul class="vue-droppable" id="vue-droppable-1">
                         <vuedraggable tag="li" :sortable="true"
-                         
+                         draghandle=".vue-draggable-handle"
                         axis="xy" :dropareas="droptoall" :offset="offset" :clone="false">
-                            <div style="width:200px;height:30px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me</div>
+                            <div style="width:200px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me
+                                <div class="vue-draggable-handle" style="background-color:red;color:white;width:80%;margin:10px;">dragme from here</div>
+                            </div>
                         </vuedraggable>
                         <vuedraggable tag="li" 
                         axis="xy" :sortable="true"

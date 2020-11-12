@@ -109,7 +109,8 @@ export default{
             dropped_area:null,//the about to drop area
             drop_areas:[],
             cssPosition:'',
-            sortDroppingElement_timeout:0
+            sortDroppingElement_timeout:0,
+            zIndex:0
         }
     },
     computed:{
@@ -190,6 +191,7 @@ export default{
                     this.$emit('drag_started',{instance:this,dragElement: this.dragElement, clone:this.clone})
                 }
                 this.dragElement.style.position='absolute';
+                this.dragElement.style.zIndex = this.zindex;
 
                 var finalX = pageX - this.elementDiffX;
                 var finalY = pageY - this.elementDiffY;
@@ -294,58 +296,61 @@ export default{
             /** CHECK IF WE WERE DRAGGING vis isDragging, because might never started */
             //console.log(event);
             if(this.isDragging){
-            var drag_element = this.dragElement;
-            if(this.clone && this.isDragging){ //be sure to remove clone element if we indeed dragged
-                document.body.removeChild(this.dragElement);
-                
-            }
-
-            
-            this.dragElement = null;
-            this.dsDom.style.position = 'absolute';
-
-            var pageX = event.touches && event.touches.length>0?event.touches[0].pageX:event.pageX;
-            var pageY = event.touches && event.touches.length>0?event.touches[0].pageY:event.pageY;
-
-            if(this.axis=='xy' || this.axis=='x'){
-                this.dsDom.style.left = pageX - this.elementDiffX+'px';
-            }
-            if(this.axis=='xy' || this.axis=='y'){
-                this.dsDom.style.top = pageY - this.elementDiffY+'px';
-            }
-            if(this.isDroppable && this.dropped_area!=null){
-                var index = -1;
-                if(this.sortable){
-                    index = this.dropped_area.dropping_element_index;
+                var drag_element = this.dragElement;
+                if(this.clone && this.isDragging){ //be sure to remove clone element if we indeed dragged
+                    document.body.removeChild(this.dragElement);
+                    
                 }
-                this.$emit('dropped',{instance:this,areaElement:this.dropped_area.el,dragElement:drag_element,clone:this.clone,sortable: this.sortable, newIndex: index })
-                
-                //this.dropped_area.el.classList.remove('vue-dropping');
 
-                //remove the dropping_element
-                //this.dropped_area.el.removeChild(this.dropped_area.dropping_element);
-                //if we are acting as a ghost then do not append the element in the droppable area and return it
-                //to its previous position, we are responsible to create the element we want in the dropped area
-                if(!this.drop_ghost){
-                   // alert('done');
+                
+                this.dragElement = null;
+                this.dsDom.style.position = 'absolute';
+
+                var pageX = event.touches && event.touches.length>0?event.touches[0].pageX:event.pageX;
+                var pageY = event.touches && event.touches.length>0?event.touches[0].pageY:event.pageY;
+
+                if(this.axis=='xy' || this.axis=='x'){
+                    this.dsDom.style.left = pageX - this.elementDiffX+'px';
+                }
+                if(this.axis=='xy' || this.axis=='y'){
+                    this.dsDom.style.top = pageY - this.elementDiffY+'px';
+                }
+                if(this.isDroppable && this.dropped_area!=null){
+                    var index = -1;
                     if(this.sortable){
-                        var dropping_index = this.dropped_area.dropping_element_index;
-                        if(dropping_index>=0 && dropping_index<=this.dropped_area.children.length){
-                            this.dropped_area.el.insertBefore(this.dsDom, this.dropped_area.children[dropping_index])
+                        index = this.dropped_area.dropping_element_index;
+                    }
+                    this.$emit('dropped',{instance:this,areaElement:this.dropped_area.el,dragElement:drag_element,clone:this.clone,sortable: this.sortable, newIndex: index })
+                    
+                    //this.dropped_area.el.classList.remove('vue-dropping');
+
+                    //remove the dropping_element
+                    //this.dropped_area.el.removeChild(this.dropped_area.dropping_element);
+                    //if we are acting as a ghost then do not append the element in the droppable area and return it
+                    //to its previous position, we are responsible to create the element we want in the dropped area
+                    if(!this.drop_ghost){
+                    // alert('done');
+                        if(this.sortable){
+                            var dropping_index = this.dropped_area.dropping_element_index;
+                            if(dropping_index>=0 && dropping_index<=this.dropped_area.children.length){
+                                this.dropped_area.el.insertBefore(this.dsDom, this.dropped_area.children[dropping_index])
+                            }else{
+                                this.dropped_area.el.appendChild(this.dsDom);
+                            }
                         }else{
                             this.dropped_area.el.appendChild(this.dsDom);
                         }
-                    }else{
-                        this.dropped_area.el.appendChild(this.dsDom);
+                        this.dsDom.style.position = this.cssPosition;
+                        this.dsDom.style.zIndex = this.zIndex;
+                    }else if(this.drop_ghost){
+                        this.dsDom.style.position = this.cssPosition;
+                        this.dsDom.style.zIndex = this.zIndex;
                     }
+                }else if(this.isDroppable){
+                    //return to previous position
                     this.dsDom.style.position = this.cssPosition;
-                }else if(this.drop_ghost){
-                    this.dsDom.style.position = this.cssPosition;
+                    this.dsDom.style.zIndex = this.zIndex;
                 }
-            }else if(this.isDroppable){
-                //return to previous position
-                this.dsDom.style.position = this.cssPosition;
-            }
             }
             this.isDragging = false;
             this.isDroppable = false;
@@ -357,9 +362,9 @@ export default{
             document.removeEventListener('mouseup',this.dragEnd);
         },
         setupEventHandlers(){
-            this.dsDom.addEventListener('mousedown',this.dragStarted)
-            this.dsDom.addEventListener('touchstart',this.dragStarted);
-            this.dsDom.addEventListener('dragstart',(event)=>{
+            this.domHandle.addEventListener('mousedown',this.dragStarted)
+            this.domhandle.addEventListener('touchstart',this.dragStarted);
+            this.domHandle.addEventListener('dragstart',(event)=>{
                 event.preventDefault();
             } )
         },
@@ -574,6 +579,8 @@ export default{
         }
         if(this.draghandle!='' && this.dsDom!=null){
             this.domHandle = this.dsDom.querySelector(this.draghandle);
+        }else if(this.dsDom!=null && this.draghandle==''){
+            this.domHandle = this.dsDom;
         }
         if(this.dropareas.length>0){
             this.isDroppable = true;
@@ -582,7 +589,7 @@ export default{
         this.containmentElement = document.querySelector(this.containment);
         
         this.cssPosition = this.dsDom.style.position;
-
+        this.zIndex = this.dsDom.style.zIndex;
         
         this.setupEventHandlers();
     }
