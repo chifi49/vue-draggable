@@ -143,12 +143,33 @@ export default{
             this.elementDiffX = event.pageX - dim.left;
             this.elementDiffY = event.pageY - dim.top;
 
-            this.containmentRect = this.containmentElement.getBoundingClientRect();
+            if(this.containment=='body'){
+                var rect = this.containmentElement.getBoundingClientRect();
+                var wrect = this.viewportSize();
+                if(rect.height<wrect.height){
+                    this.containmentRect = wrect;
+                }else{
+                    this.containmentRect = rect;
+                }
+            }else{
+                this.containmentRect = this.containmentElement.getBoundingClientRect();
+            }
 
             document.addEventListener('mousemove',this.dragMove);
             document.addEventListener('touchmove',this.dragMove);
             document.addEventListener('mouseup',this.dragEnd);
             document.addEventListener('touchend',this.dragEnd);
+        },
+        viewportSize(){
+            var view = document.createElement( "div" );
+
+            view.style.cssText = "position: fixed;top: 0;left: 0;bottom: 0;right: 0;z-index:-1,";
+            document.documentElement.insertBefore( view, document.documentElement.firstChild );
+            
+            var dims = { width: view.offsetWidth, height: view.offsetHeight, x:0, y:0,left:0,top:0 };
+            document.documentElement.removeChild( view );
+            
+            return dims;
         },
         dragMove(event){
             event.preventDefault();
@@ -363,7 +384,7 @@ export default{
         },
         setupEventHandlers(){
             this.domHandle.addEventListener('mousedown',this.dragStarted)
-            this.domhandle.addEventListener('touchstart',this.dragStarted);
+            this.domHandle.addEventListener('touchstart',this.dragStarted);
             this.domHandle.addEventListener('dragstart',(event)=>{
                 event.preventDefault();
             } )

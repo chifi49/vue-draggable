@@ -577,12 +577,12 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=09b985bc&
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=286fa7fa&
 var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:{'vue-draggable':true,'vue-dragging':_vm.is_dragging}},[_vm._t("default")],2)}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=09b985bc&
+// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=286fa7fa&
 
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.for-each.js
 var es_array_for_each = __webpack_require__("6efa");
@@ -843,11 +843,39 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       this.elementY = dim.top;
       this.elementDiffX = event.pageX - dim.left;
       this.elementDiffY = event.pageY - dim.top;
-      this.containmentRect = this.containmentElement.getBoundingClientRect();
+
+      if (this.containment == 'body') {
+        var rect = this.containmentElement.getBoundingClientRect();
+        var wrect = this.viewportSize();
+
+        if (rect.height < wrect.height) {
+          this.containmentRect = wrect;
+        } else {
+          this.containmentRect = rect;
+        }
+      } else {
+        this.containmentRect = this.containmentElement.getBoundingClientRect();
+      }
+
       document.addEventListener('mousemove', this.dragMove);
       document.addEventListener('touchmove', this.dragMove);
       document.addEventListener('mouseup', this.dragEnd);
       document.addEventListener('touchend', this.dragEnd);
+    },
+    viewportSize: function viewportSize() {
+      var view = document.createElement("div");
+      view.style.cssText = "position: fixed;top: 0;left: 0;bottom: 0;right: 0;z-index:-1,";
+      document.documentElement.insertBefore(view, document.documentElement.firstChild);
+      var dims = {
+        width: view.offsetWidth,
+        height: view.offsetHeight,
+        x: 0,
+        y: 0,
+        left: 0,
+        top: 0
+      };
+      document.documentElement.removeChild(view);
+      return dims;
     },
     dragMove: function dragMove(event) {
       event.preventDefault();
@@ -1099,7 +1127,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
     },
     setupEventHandlers: function setupEventHandlers() {
       this.domHandle.addEventListener('mousedown', this.dragStarted);
-      this.domhandle.addEventListener('touchstart', this.dragStarted);
+      this.domHandle.addEventListener('touchstart', this.dragStarted);
       this.domHandle.addEventListener('dragstart', function (event) {
         event.preventDefault();
       });
