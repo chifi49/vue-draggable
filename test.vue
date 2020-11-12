@@ -3,33 +3,36 @@
         <table width="100%">
             <tr valign="top">
                 <td width="33%">
-                    
-                    <vuedraggable @dropped="dropped" @dragging="dragging" @drop_enter="drop_enter" @drop_exit="drop_exit" axis="xy" :dropareas="dropto" :offset="offset" :clone="true">
+                    <ul class="vue-droppable">
+                    <vuedraggable tag="li" @dropped="dropped" @dragging="dragging" @drop_enter="drop_enter" @drop_exit="drop_exit" axis="xy"  :dropareas="dropto" :offset="offset" :clone="true">
                         <div style="width:200px;background-color:#000;color:#fff;">you can drag me</div>
                     </vuedraggable>
-                    <vuedraggable axis="xy" :dropareas="dropto" :offset="offset" :clone="false">
+                    <vuedraggable tag="li" axis="xy" :dropareas="dropto" :offset="offset" :clone="false">
                         <div style="width:200px;background-color:#000;color:#fff;">you can drag me 2</div>
                     </vuedraggable>
-                    <vuedraggable  :clone_element="clone_element" axis="xy" :dropareas="droptoall" :offset="offset" :clone="true">
+                    <vuedraggable tag="li" :clone_element="clone_element" axis="xy" :dropareas="droptoall" :offset="offset" :clone="true">
                         <div style="width:200px;background-color:#000;color:#fff;">you can drag me 3</div>
                     </vuedraggable>
-                    <vuedraggable axis="xy" :offset="offset">
+                    <vuedraggable tag="li" axis="xy" :offset="offset">
                         <button>drag me</button>
                     </vuedraggable>
+                    </ul>
                 </td>
                 <td width="33%">
-                    <div class="vue-droppable">
+                    <ul class="vue-droppable">
                         <br />
-                        <div class="vue-droppable3">
-                        </div>
-                    </div>
+                        <vuedraggable tag="li" axis="xy" :dropareas="droptoall">
+                            <ul class="vue-droppable3">
+                            </ul>
+                        </vuedraggable>
+                    </ul>
                     <br />
-                    <div class="vue-droppable">
-                    </div>
+                    <ul class="vue-droppable">
+                    </ul>
                 </td>
                 <td width="33%">
-                    <div class="vue-droppable2">
-                    </div>
+                    <ul class="vue-droppable2">
+                    </ul>
                 </td>
             </tr>
         </table>
@@ -88,11 +91,17 @@ export default{
 }
 </script>
 <style scoped>
+
 .vue-droppable, .vue-droppable2{
     border:solid 1px #ccc;
     background-color:#efefef;
     width:100%;
     height:200px;
+    padding-top:10px;padding-bottom:10px;
+    list-style:none;
+}
+ul li{
+    margin-top:10px;
 }
 .vue-droppable3{
     border:solid 1px #ddd;
@@ -100,6 +109,7 @@ export default{
     width:90%;
     margin:0 auto;
     height:100px;
+    padding-top:10px;padding-bottom:10px;
 }
 .vue-dropping{
     border:solid 1px red;

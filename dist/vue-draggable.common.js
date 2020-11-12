@@ -296,6 +296,21 @@ module.exports = function (name) {
 
 /***/ }),
 
+/***/ "2195":
+/***/ (function(module, exports, __webpack_require__) {
+
+var $ = __webpack_require__("017d");
+var parseIntImplementation = __webpack_require__("360b");
+
+// `parseInt` method
+// https://tc39.github.io/ecma262/#sec-parseint-string-radix
+$({ global: true, forced: parseInt != parseIntImplementation }, {
+  parseInt: parseIntImplementation
+});
+
+
+/***/ }),
+
 /***/ "2227":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -451,6 +466,36 @@ module.exports = DESCRIPTORS ? Object.defineProperties : function defineProperti
 
 /***/ }),
 
+/***/ "2d87":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__("017d");
+var $indexOf = __webpack_require__("458f").indexOf;
+var arrayMethodIsStrict = __webpack_require__("ab38");
+var arrayMethodUsesToLength = __webpack_require__("2eb8");
+
+var nativeIndexOf = [].indexOf;
+
+var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
+var STRICT_METHOD = arrayMethodIsStrict('indexOf');
+var USES_TO_LENGTH = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+
+// `Array.prototype.indexOf` method
+// https://tc39.github.io/ecma262/#sec-array.prototype.indexof
+$({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD || !USES_TO_LENGTH }, {
+  indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
+    return NEGATIVE_ZERO
+      // convert -0 to +0
+      ? nativeIndexOf.apply(this, arguments) || 0
+      : $indexOf(this, searchElement, arguments.length > 1 ? arguments[1] : undefined);
+  }
+});
+
+
+/***/ }),
+
 /***/ "2eb8":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -532,15 +577,18 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=548ce7c8&
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.tag=='span')?_c('span',[_vm._t("default")],2):(_vm.tag=='li')?_c('li',[_vm._t("default")],2):(_vm.tag=='div')?_c('div',[_vm._t("default")],2):(_vm.tag=='tr')?_c('div',[_vm._t("default")],2):_vm._e()}
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=57256688&
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:{'vue-draggable':true,'vue-dragging':_vm.is_dragging}},[_vm._t("default")],2)}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=548ce7c8&
+// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=57256688&
 
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.for-each.js
 var es_array_for_each = __webpack_require__("6efa");
+
+// EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.index-of.js
+var es_array_index_of = __webpack_require__("2d87");
 
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.join.js
 var es_array_join = __webpack_require__("0e65");
@@ -551,6 +599,90 @@ var es_date_to_string = __webpack_require__("5f5d");
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.number.constructor.js
 var es_number_constructor = __webpack_require__("3685");
 
+// EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.parse-int.js
+var es_parse_int = __webpack_require__("2195");
+
+// EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/web.timers.js
+var web_timers = __webpack_require__("a11f");
+
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) {
+    arr2[i] = arr[i];
+  }
+
+  return arr2;
+}
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/@babel/runtime/helpers/esm/createForOfIteratorHelper.js
+
+function _createForOfIteratorHelper(o, allowArrayLike) {
+  var it;
+
+  if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+      if (it) o = it;
+      var i = 0;
+
+      var F = function F() {};
+
+      return {
+        s: F,
+        n: function n() {
+          if (i >= o.length) return {
+            done: true
+          };
+          return {
+            done: false,
+            value: o[i++]
+          };
+        },
+        e: function e(_e) {
+          throw _e;
+        },
+        f: F
+      };
+    }
+
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  var normalCompletion = true,
+      didErr = false,
+      err;
+  return {
+    s: function s() {
+      it = o[Symbol.iterator]();
+    },
+    n: function n() {
+      var step = it.next();
+      normalCompletion = step.done;
+      return step;
+    },
+    e: function e(_e2) {
+      didErr = true;
+      err = _e2;
+    },
+    f: function f() {
+      try {
+        if (!normalCompletion && it["return"] != null) it["return"]();
+      } finally {
+        if (didErr) throw err;
+      }
+    }
+  };
+}
 // EXTERNAL MODULE: external {"commonjs":"vue","commonjs2":"vue","root":"Vue"}
 var external_commonjs_vue_commonjs2_vue_root_Vue_ = __webpack_require__("8bbf");
 var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpack_require__.n(external_commonjs_vue_commonjs2_vue_root_Vue_);
@@ -560,15 +692,10 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 
 
 
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
+
+
+
 //
 //
 //
@@ -581,7 +708,10 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
     tag: {
       required: false,
       type: String,
-      "default": 'span'
+      "default": 'span',
+      validator: function validator(value) {
+        return ['br', 'script', 'noscript', 'dfn', 'object'].indexOf(value) == -1;
+      }
     },
     zindex: {
       required: false,
@@ -648,6 +778,11 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       required: false,
       type: String,
       "default": 'body'
+    },
+    sortable: {
+      required: false,
+      type: Boolean,
+      "default": false
     }
   },
   data: function data() {
@@ -664,6 +799,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       original_target: null,
       orginal_handle: null,
       isDragging: false,
+      isDropping: false,
       dragStartX: -1,
       dragStartY: -1,
       elementX: -1,
@@ -675,8 +811,17 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       dropped_area: null,
       //the about to drop area
       drop_areas: [],
-      cssPosition: ''
+      cssPosition: '',
+      sortDroppingElement_timeout: 0
     };
+  },
+  computed: {
+    is_dragging: function is_dragging() {
+      return this.isDragging;
+    },
+    is_dropping: function is_dropping() {
+      return this.isDropping;
+    }
   },
   methods: {
     dragStarted: function dragStarted(event) {
@@ -761,8 +906,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 
         if (finalX < this.containmentRect.left || finalX + this.dragElement.offsetWidth > this.containmentRect.left + this.containmentRect.width || finalY < this.containmentRect.top || finalY + this.dragElement.offsetHeight > this.containmentRect.top + this.containmentRect.height) {
           return; //do not drag outside containment
-        } //console.log(diffX, diffY);
-
+        }
 
         if (this.axis == 'xy' || this.axis == 'x') {
           this.dragElement.style.left = finalX + 'px';
@@ -785,11 +929,9 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 
         if (this.isDroppable) {
           //find in which droppable we are contained
-          var is_contained = false;
-
+          //var is_contained = false;
           for (var d = 0; d < this.drop_areas.length; d++) {
-            var drop_area = this.drop_areas[d]; //console.log(drop_area);
-
+            var drop_area = this.drop_areas[d];
             var draggable = {
               left: finalX,
               top: finalY,
@@ -798,14 +940,26 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
             };
 
             if (this.contains(drop_area, draggable)) {
-              is_contained = true;
+              //is_contained = true;
               drop_area.el.classList.add('vue-dropping');
               this.dropped_area = drop_area; //if we have not marked as active drop area, mark it (so we do not send none stop drop enter event)
               //also we do not need to recreate the ghost dropping_element again and again, one time is enought
 
               if (!drop_area.active) {
                 drop_area.active = true;
-                drop_area.createDroppingElement();
+                drop_area.createDroppingElement({
+                  left: finalX,
+                  top: finalY
+                });
+
+                if (this.sortable) {
+                  //get all first depth children of drop_area
+                  drop_area.sortDroppingElement({
+                    left: finalX,
+                    top: finalY
+                  });
+                }
+
                 this.$emit('drop_enter', {
                   instance: this,
                   dragElement: this.dragElement,
@@ -814,6 +968,10 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
                 });
                 this.drop_areas[d] = drop_area;
               } else {
+                drop_area.sortDroppingElement({
+                  left: finalX,
+                  top: finalY
+                });
                 this.$emit('dropping', {
                   instance: this,
                   dragElement: this.dragElement,
@@ -821,8 +979,8 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
                   areaElement: drop_area.el
                 });
               }
-            } else {
-              is_contained = false;
+            } else {//is_contained = false;
+
               /**
               if(drop_area.active){
                   if(drop_area.dropping_element!=null){
@@ -837,10 +995,9 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
               **/
             }
           } //for
-
-
-          console.log('contained', is_contained); //loop through all the drop_areas and any drop_area that is not currently active
+          //loop through all the drop_areas and any drop_area that is not currently active
           //remove its active state and remove also any ghost dropping element
+
 
           for (var dd = 0; dd < this.drop_areas.length; dd++) {
             if (this.drop_areas[dd] != this.dropped_area && this.drop_areas[dd].active) {
@@ -881,13 +1038,20 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
         }
 
         if (this.isDroppable && this.dropped_area != null) {
+          var index = -1;
+
+          if (this.sortable) {
+            index = this.dropped_area.dropping_element_index;
+          }
+
           this.$emit('dropped', {
             instance: this,
             areaElement: this.dropped_area.el,
             dragElement: drag_element,
-            clone: this.clone
-          }); //console.log('dropped too');
-          //this.dropped_area.el.classList.remove('vue-dropping');
+            clone: this.clone,
+            sortable: this.sortable,
+            newIndex: index
+          }); //this.dropped_area.el.classList.remove('vue-dropping');
           //remove the dropping_element
           //this.dropped_area.el.removeChild(this.dropped_area.dropping_element);
           //if we are acting as a ghost then do not append the element in the droppable area and return it
@@ -895,7 +1059,18 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 
           if (!this.drop_ghost) {
             // alert('done');
-            this.dropped_area.el.appendChild(this.dsDom);
+            if (this.sortable) {
+              var dropping_index = this.dropped_area.dropping_element_index;
+
+              if (dropping_index >= 0 && dropping_index <= this.dropped_area.children.length) {
+                this.dropped_area.el.insertBefore(this.dsDom, this.dropped_area.children[dropping_index]);
+              } else {
+                this.dropped_area.el.appendChild(this.dsDom);
+              }
+            } else {
+              this.dropped_area.el.appendChild(this.dsDom);
+            }
+
             this.dsDom.style.position = this.cssPosition;
           } else if (this.drop_ghost) {
             this.dsDom.style.position = this.cssPosition;
@@ -910,7 +1085,9 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       this.isDroppable = false; //this.isDragging = false;
 
       this.dropped_area = null;
-      this.$emit('drag_ended');
+      this.$emit('drag_ended', {
+        instance: this
+      });
       this.resetDropAreas();
       document.removeEventListener('mousemove', this.dragMove);
       document.removeEventListener('mouseup', this.dragEnd);
@@ -927,8 +1104,6 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       return 'vdraggable-' + d.getMilliseonds();
     },
     resetDropAreas: function resetDropAreas() {
-      console.log('resetdropareas');
-
       for (var d = 0; d < this.drop_areas.length; d++) {
         this.drop_areas[d].el.classList.remove('vue-dropping');
         this.drop_areas[d].active = false; //ean exo dropping element dimiourgimeno, katestrepse to
@@ -954,19 +1129,187 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
           el: el,
           dim: el.getBoundingClientRect(),
           active: false,
+          children: [],
+          dropping_element_index: -1,
           dropping_element: null,
           //holds a reference to dropping element in order to remove it
           removeDroppingElement: function removeDroppingElement() {
             if (this.dropping_element != null) {
+              //console.log(this.el);
               this.el.removeChild(this.dropping_element);
               this.dropping_element = null;
             }
           },
-          createDroppingElement: function createDroppingElement() {
+          createDroppingElement: function createDroppingElement(params) {
             this.dropping_element = me.dropping_element();
-            this.el.appendChild(this.dropping_element);
+            this.dropping_element.classList.add('vue-dropping-placeholder');
+
+            if (!me.sortable) {
+              this.el.appendChild(this.dropping_element);
+            }
+
+            var new_index = this.findDroppingElement_index(params);
+            var that = this;
+            that.dropping_element_index = new_index;
+
+            if (new_index == -1) {
+              //console.log('first');
+              that.el.appendChild(that.dropping_element);
+            } else if (new_index == that.children.length) {
+              //console.log('last');
+              that.el.appendChild(that.dropping_element);
+            } else {
+              //console.log('before')
+              that.el.insertBefore(that.dropping_element, that.children[new_index]);
+            }
+          },
+          findDroppingElement_index: function findDroppingElement_index(params) {
+            var index = 0;
+            var top = params.top;
+            var new_index = 0;
+
+            var _iterator = _createForOfIteratorHelper(this.el.children),
+                _step;
+
+            try {
+              for (_iterator.s(); !(_step = _iterator.n()).done;) {
+                var child = _step.value;
+                //var child = this.children[index];
+                var placeholder_dim = {
+                  width: 0,
+                  height: 0
+                };
+
+                if (child.classList.contains('vue-dropping-placeholder')) {
+                  //found_placeholder = true;
+                  placeholder_dim = child.getBoundingClientRect();
+                  placeholder_dim.width; //continue;
+                  //console.log('found',found_placeholder, found_placeholder_before);
+                } //var dim = child.dim;//getBoundingClientRect();
+
+
+                var dim = child.getBoundingClientRect();
+
+                if (top > dim.top + dim.height / 2) {
+                  new_index = index;
+                }
+
+                index++;
+              }
+              /**
+              if(false && found_placeholder_before){
+                  new_index = parseInt(new_index);
+              }else{
+                  **/
+
+            } catch (err) {
+              _iterator.e(err);
+            } finally {
+              _iterator.f();
+            }
+
+            new_index = parseInt(new_index);
+            return new_index;
+          },
+          sortDroppingElement: function sortDroppingElement(params) {
+            //var left = params.left;
+            var top = params.top;
+            var new_index = 0;
+            var index = 0;
+
+            var _iterator2 = _createForOfIteratorHelper(this.el.children),
+                _step2;
+
+            try {
+              for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                var child = _step2.value;
+                //var child = this.children[index];
+                var placeholder_dim = {
+                  width: 0,
+                  height: 0
+                };
+
+                if (child.classList.contains('vue-dropping-placeholder')) {
+                  //found_placeholder = true;
+                  placeholder_dim = child.getBoundingClientRect();
+                  placeholder_dim.width; //continue;
+                  //console.log('found',found_placeholder, found_placeholder_before);
+                } //var dim = child.dim;//getBoundingClientRect();
+
+
+                var dim = child.getBoundingClientRect();
+
+                if (top > dim.top + dim.height / 2) {
+                  new_index = index;
+                }
+
+                index++;
+              }
+              /**
+              if(false && found_placeholder_before){
+                  new_index = parseInt(new_index);
+              }else{
+                  **/
+
+            } catch (err) {
+              _iterator2.e(err);
+            } finally {
+              _iterator2.f();
+            }
+
+            new_index = parseInt(new_index); //}
+
+            if (new_index != this.dropping_element_index) {
+              clearTimeout(me.sortDroppingElement_timeout);
+              var that = this;
+              me.sortDroppingElement_timeout = setTimeout(function () {
+                if (that.dropping_element == null) {
+                  return;
+                }
+
+                that.dropping_element_index = new_index;
+
+                if (new_index == -1) {
+                  //console.log('first');
+                  that.el.appendChild(that.dropping_element);
+                } else if (new_index == that.children.length) {
+                  //console.log('last');
+                  that.el.appendChild(that.dropping_element);
+                } else {
+                  //console.log('before')
+                  that.el.insertBefore(that.dropping_element, that.children[new_index]);
+                }
+              }, 12);
+            }
           }
         };
+
+        if (me.sortable) {
+          var counter = 0;
+
+          var _iterator3 = _createForOfIteratorHelper(el.children),
+              _step3;
+
+          try {
+            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+              var child = _step3.value;
+              child.dim = child.getBoundingClientRect();
+
+              if (child !== me.$el) {
+                drop.children.push(child); //should we push our self?
+              } else {
+                drop.dropping_element_index = counter;
+              }
+
+              counter++;
+            }
+          } catch (err) {
+            _iterator3.e(err);
+          } finally {
+            _iterator3.f();
+          }
+        }
+
         me.drop_areas.push(drop);
       });
 
@@ -1018,8 +1361,6 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 
     this.containmentElement = document.querySelector(this.containment);
     this.cssPosition = this.dsDom.style.position;
-    console.log('ghost', this.drop_ghost); //console.log(this.dsDom);
-
     this.setupEventHandlers();
   }
 });
@@ -1158,6 +1499,27 @@ var component = normalizeComponent(
 /***/ (function(module, exports) {
 
 module.exports = false;
+
+
+/***/ }),
+
+/***/ "360b":
+/***/ (function(module, exports, __webpack_require__) {
+
+var global = __webpack_require__("55f2");
+var trim = __webpack_require__("4079").trim;
+var whitespaces = __webpack_require__("b808");
+
+var $parseInt = global.parseInt;
+var hex = /^[+-]?0[Xx]/;
+var FORCED = $parseInt(whitespaces + '08') !== 8 || $parseInt(whitespaces + '0x16') !== 22;
+
+// `parseInt` method
+// https://tc39.github.io/ecma262/#sec-parseint-string-radix
+module.exports = FORCED ? function parseInt(string, radix) {
+  var S = trim(String(string));
+  return $parseInt(S, (radix >>> 0) || (hex.test(S) ? 16 : 10));
+} : $parseInt;
 
 
 /***/ }),
@@ -1718,6 +2080,16 @@ module.exports = {
 
 /***/ }),
 
+/***/ "7ff3":
+/***/ (function(module, exports, __webpack_require__) {
+
+var getBuiltIn = __webpack_require__("3964");
+
+module.exports = getBuiltIn('navigator', 'userAgent') || '';
+
+
+/***/ }),
+
 /***/ "8065":
 /***/ (function(module, exports) {
 
@@ -1843,6 +2215,41 @@ module.exports = !fails(function () {
 var global = __webpack_require__("55f2");
 
 module.exports = global;
+
+
+/***/ }),
+
+/***/ "a11f":
+/***/ (function(module, exports, __webpack_require__) {
+
+var $ = __webpack_require__("017d");
+var global = __webpack_require__("55f2");
+var userAgent = __webpack_require__("7ff3");
+
+var slice = [].slice;
+var MSIE = /MSIE .\./.test(userAgent); // <- dirty ie9- check
+
+var wrap = function (scheduler) {
+  return function (handler, timeout /* , ...arguments */) {
+    var boundArgs = arguments.length > 2;
+    var args = boundArgs ? slice.call(arguments, 2) : undefined;
+    return scheduler(boundArgs ? function () {
+      // eslint-disable-next-line no-new-func
+      (typeof handler == 'function' ? handler : Function(handler)).apply(this, args);
+    } : handler, timeout);
+  };
+};
+
+// ie9- setTimeout & setInterval additional parameters fix
+// https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#timers
+$({ global: true, bind: true, forced: MSIE }, {
+  // `setTimeout` method
+  // https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#dom-settimeout
+  setTimeout: wrap(global.setTimeout),
+  // `setInterval` method
+  // https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#dom-setinterval
+  setInterval: wrap(global.setInterval)
+});
 
 
 /***/ }),

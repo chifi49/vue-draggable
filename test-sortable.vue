@@ -1,44 +1,76 @@
 <template>
     <div id="app">
+        <heading :size="5" link="https://www.google.com" link_target="_blank" :placeholder="'<span>{{text}}</span>'" text="Visit Google" />
         <table width="100%">
             <tr valign="top">
-                <td width="33%">
-                    <div class="vue-droppable" id="">
-                        <vuedraggable :containment="'.vue-droppable'" @dropped="dropped" @dragging="dragging" @drop_enter="drop_enter" @drop_exit="drop_exit" axis="y" :dropareas="dropto" :offset="offset" :clone="true">
-                            <div style="width:200px;background-color:#000;color:#fff;margin:10">you can drag me</div>
+                <td width="45%">
+                    <ul class="vue-droppable" id="vue-droppable-1">
+                        <vuedraggable tag="li" :sortable="true"
+                         
+                        axis="xy" :dropareas="droptoall" :offset="offset" :clone="false">
+                            <div style="width:200px;height:30px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me</div>
                         </vuedraggable>
-                        <vuedraggable  :containment="'.vue-droppable'"  axis="y" :dropareas="dropto" :offset="offset" :clone="false">
-                            <div style="width:200px;background-color:#000;color:#fff;margin:10">you can drag me 2</div>
+                        <vuedraggable tag="li" 
+                        axis="xy" :sortable="true"
+                        :dropareas="droptoall" :offset="offset" :clone="false">
+                            <div style="width:200px;height:30px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me 2</div>
                         </vuedraggable>
-                        <vuedraggable  :containment="'.vue-droppable'" :clone_element="clone_element" axis="y" :dropareas="droptoall" :offset="offset" :clone="true">
-                            <div style="width:200px;background-color:#000;color:#fff;margin:10">you can drag me 3</div>
+                        <vuedraggable :dropping_element="dropping_element" tag="li" 
+                        :clone_element="clone_element" 
+                        :sortable="true"
+                        @dropped="dropped" @drag_ended="drag_ended" @dragging="dragging" @drop_enter="drop_enter" @drop_exit="drop_exit"
+                        axis="xy" :dropareas="droptoall" :offset="offset" :clone="false">
+                            <div style="width:200px;height:30px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me 3</div>
                         </vuedraggable>
-                    </div>
+
+                        <vuedraggable tag="li" :sortable="true"
+                         
+                        axis="xy" :dropareas="droptoall" :offset="offset" :clone="false">
+                            <div style="width:200px;height:30px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me 4</div>
+                        </vuedraggable>
+                        <vuedraggable tag="li" 
+                        axis="xy" :sortable="true"
+                        :dropareas="droptoall" :offset="offset" :clone="false">
+                            <div style="width:200px;height:30px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me 5</div>
+                        </vuedraggable>
+                    </ul>
                 </td>
-                
+                <td width="45%">
+                    <ul class="vue-droppable2" id="vue-droppable-2">
+                    </ul>
+                </td>
             </tr>
         </table>
     </div>
 </template>
 <script>
 import vuedraggable from './vue-draggable.vue';
+import heading from './heading-component.vue';
 export default{
     components:{
-        vuedraggable
+        vuedraggable,
+        heading
     },
     data(){
         return {
             offset:10,
             clone:true,
             dropto:['.vue-droppable','.vue-droppable3'],
-            droptoall:['.vue-droppable','.vue-droppable2'],
+            droptoall:['.vue-droppable2'],
             ghost:true
         }
     },
     methods:{
+        dropping_element(){
+            var li = document.createElement('li');
+            li.style.cssText = 'height:20px;border:dashed 2px #afafaf;margin-top:10px;';
+            li.classList.add('vue-dropping-ghost');
+            li.innerHTML = '';
+            return li;
+        },
         dropped(params){
             console.log(params);
-            console.log('dropped in to area')
+            console.log('dropped in to area with index',params.newIndex)
         },
         dragging(params){
             //console.log(1)
@@ -51,6 +83,10 @@ export default{
         drop_exit(params){
             params.instance;
             console.log('exited drop area');
+        },
+        drag_ended(params){
+            params.instance;
+            console.log('drag ended');
         },
         clone_element(params){
             params.instance;
@@ -78,6 +114,13 @@ export default{
     background-color:#efefef;
     width:100%;
     height:200px;
+    list-style:none;
+    margin:0;
+    padding:0;
+    padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;
+}
+ul li{
+    margin-top:10px;
 }
 .vue-droppable3{
     border:solid 1px #ddd;

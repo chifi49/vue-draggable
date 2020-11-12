@@ -1,16 +1,7 @@
 <template>
-    <span v-if="tag=='span'">
+    <component :is="tag" :class="{'vue-draggable':true,'vue-dragging':is_dragging}">
         <slot></slot>
-    </span>
-    <li v-else-if="tag=='li'">
-        <slot></slot>
-    </li>
-    <div v-else-if="tag=='div'">
-        <slot></slot>
-    </div>
-    <div v-else-if="tag=='tr'">
-        <slot></slot>
-    </div>
+    </component>
 </template>
 <script>
 import Vue from 'vue';
@@ -20,7 +11,11 @@ export default{
         tag:{
             required:false,
             type:String,
-            default:'span'
+            default:'span',
+            validator:function(value){
+                return ['br','script','noscript','dfn','object']
+                .indexOf(value)==-1
+            }
         },
         zindex:{
             required:false,
@@ -84,6 +79,11 @@ export default{
             required:false,
             type:String,
             default:'body'
+        },
+        sortable:{
+            required:false,
+            type:Boolean,
+            default:false
         }
     },
     data(){
@@ -98,6 +98,7 @@ export default{
             original_target:null,
             orginal_handle:null,
             isDragging:false,
+            isDropping:false,
             dragStartX:-1,
             dragStartY:-1,
             elementX:-1,
@@ -107,7 +108,16 @@ export default{
             isDroppable:false, // if we have dropareas than it is a droppable
             dropped_area:null,//the about to drop area
             drop_areas:[],
-            cssPosition:''
+            cssPosition:'',
+            sortDroppingElement_timeout:0
+        }
+    },
+    computed:{
+        is_dragging(){
+            return this.isDragging;
+        },
+        is_dropping(){
+            return this.isDropping;
         }
     },
     methods:{
@@ -134,7 +144,7 @@ export default{
 
             this.containmentRect = this.containmentElement.getBoundingClientRect();
 
-            document.addEventListener('mousemove',this.dragMove)
+            document.addEventListener('mousemove',this.dragMove);
             document.addEventListener('touchmove',this.dragMove);
             document.addEventListener('mouseup',this.dragEnd);
             document.addEventListener('touchend',this.dragEnd);
@@ -191,7 +201,7 @@ export default{
             }
 
 
-                //console.log(diffX, diffY);
+                
                 if(this.axis=='xy' || this.axis=='x'){
                     this.dragElement.style.left = finalX+'px';
                 }
@@ -203,10 +213,10 @@ export default{
 
                 if(this.isDroppable){
                     //find in which droppable we are contained
-                    var is_contained = false;
+                    //var is_contained = false;
                     for(var d=0;d<this.drop_areas.length;d++){
                         var drop_area = this.drop_areas[d];
-                        //console.log(drop_area);
+                        
                         var draggable = {
                             left: finalX,
                             top: finalY,
@@ -216,21 +226,37 @@ export default{
                         
                         if(this.contains(drop_area,draggable)){ 
                             
-                            is_contained = true;
+                            //is_contained = true;
                             drop_area.el.classList.add('vue-dropping');
                             this.dropped_area = drop_area;
                             //if we have not marked as active drop area, mark it (so we do not send none stop drop enter event)
                             //also we do not need to recreate the ghost dropping_element again and again, one time is enought
                             if(!drop_area.active){
                                 drop_area.active = true;
-                                drop_area.createDroppingElement();
+                                drop_area.createDroppingElement({
+                                    left: finalX,
+                                    top: finalY
+                                });
+                                if(this.sortable){
+                                    //get all first depth children of drop_area
+                                    drop_area.sortDroppingElement({
+                                        left: finalX,
+                                        top: finalY
+                                    });
+                                }
                                 this.$emit('drop_enter',{instance:this, dragElement:this.dragElement,clone:this.clone,areaElement: drop_area.el});    
                                 this.drop_areas[d] = drop_area;
                             }else{
+                                drop_area.sortDroppingElement(
+                                    {
+                                        left: finalX,
+                                        top: finalY
+                                    }
+                                );
                                 this.$emit('dropping',{instance:this, dragElement:this.dragElement, clone:this.clone, areaElement: drop_area.el});
                             }
                         }else{
-                            is_contained = false;
+                            //is_contained = false;
                             /**
                             if(drop_area.active){
                                 if(drop_area.dropping_element!=null){
@@ -246,7 +272,7 @@ export default{
                         }
 
                     }//for
-                    console.log('contained',is_contained);
+                    
                     //loop through all the drop_areas and any drop_area that is not currently active
                     //remove its active state and remove also any ghost dropping element
                     for(var dd=0;dd<this.drop_areas.length;dd++){
@@ -288,12 +314,12 @@ export default{
                 this.dsDom.style.top = pageY - this.elementDiffY+'px';
             }
             if(this.isDroppable && this.dropped_area!=null){
-                this.$emit('dropped',{instance:this,areaElement:this.dropped_area.el,dragElement:drag_element,clone:this.clone})
+                var index = -1;
+                if(this.sortable){
+                    index = this.dropped_area.dropping_element_index;
+                }
+                this.$emit('dropped',{instance:this,areaElement:this.dropped_area.el,dragElement:drag_element,clone:this.clone,sortable: this.sortable, newIndex: index })
                 
-                
-                //console.log('dropped too');
-
-
                 //this.dropped_area.el.classList.remove('vue-dropping');
 
                 //remove the dropping_element
@@ -302,7 +328,16 @@ export default{
                 //to its previous position, we are responsible to create the element we want in the dropped area
                 if(!this.drop_ghost){
                    // alert('done');
-                    this.dropped_area.el.appendChild(this.dsDom);
+                    if(this.sortable){
+                        var dropping_index = this.dropped_area.dropping_element_index;
+                        if(dropping_index>=0 && dropping_index<=this.dropped_area.children.length){
+                            this.dropped_area.el.insertBefore(this.dsDom, this.dropped_area.children[dropping_index])
+                        }else{
+                            this.dropped_area.el.appendChild(this.dsDom);
+                        }
+                    }else{
+                        this.dropped_area.el.appendChild(this.dsDom);
+                    }
                     this.dsDom.style.position = this.cssPosition;
                 }else if(this.drop_ghost){
                     this.dsDom.style.position = this.cssPosition;
@@ -316,7 +351,7 @@ export default{
             this.isDroppable = false;
             //this.isDragging = false;
             this.dropped_area = null;
-            this.$emit('drag_ended');
+            this.$emit('drag_ended',{instance:this});
             this.resetDropAreas();
             document.removeEventListener('mousemove',this.dragMove);
             document.removeEventListener('mouseup',this.dragEnd);
@@ -333,7 +368,7 @@ export default{
             return 'vdraggable-'+d.getMilliseonds();
         },
         resetDropAreas(){
-            console.log('resetdropareas');
+            
             for(var d=0;d<this.drop_areas.length;d++){
                 this.drop_areas[d].el.classList.remove('vue-dropping');
                 this.drop_areas[d].active = false;
@@ -356,18 +391,148 @@ export default{
                    el: el,
                    dim: el.getBoundingClientRect(),
                    active: false,
+                   children:[],
+                   dropping_element_index:-1,
                    dropping_element:null, //holds a reference to dropping element in order to remove it
                    removeDroppingElement:function(){
                        if(this.dropping_element!=null){
+                           //console.log(this.el);
                            this.el.removeChild(this.dropping_element);
                            this.dropping_element = null;
                        }
                    },
-                   createDroppingElement:function(){
+                   createDroppingElement:function(params){
                        this.dropping_element = me.dropping_element();
-                       this.el.appendChild(this.dropping_element);
+                       this.dropping_element.classList.add('vue-dropping-placeholder');
+                       if(!me.sortable){
+                        this.el.appendChild(this.dropping_element);
+                       }
+                       var new_index = this.findDroppingElement_index(params)
+                       var that = this;
+                       that.dropping_element_index = new_index;
+                        if(new_index==-1){
+                            //console.log('first');
+                            that.el.appendChild(that.dropping_element);
+                        }else 
+                        if(new_index==that.children.length){
+                            //console.log('last');
+                            that.el.appendChild(that.dropping_element);
+                        }else{
+                            //console.log('before')
+                            that.el.insertBefore(that.dropping_element,that.children[new_index]);
+                        }
+                   },
+                   findDroppingElement_index:function(params){
+                       var index=0;
+                       var top = params.top;    
+                       var new_index = 0;
+                        for(var child of this.el.children){
+                           //var child = this.children[index];
+                           var placeholder_dim = {
+                                width:0,
+                                height:0
+                            };
+                           if(child.classList.contains('vue-dropping-placeholder')){
+                               //found_placeholder = true;
+                               placeholder_dim = child.getBoundingClientRect();
+                               placeholder_dim.width;
+                                //continue;
+                               //console.log('found',found_placeholder, found_placeholder_before);
+                           }
+                           //var dim = child.dim;//getBoundingClientRect();
+                           var dim = child.getBoundingClientRect();
+
+                           
+                                if(top>dim.top+(dim.height/2)){
+                                    
+                                    new_index = index;
+                                }
+                            
+                           index++;
+                       }
+                       /**
+                       if(false && found_placeholder_before){
+                           new_index = parseInt(new_index);
+                       }else{
+                           **/
+                        new_index=parseInt(new_index);
+                        return new_index;
+                   },
+                   sortDroppingElement:function(params){
+                       //var left = params.left;
+                       var top = params.top;    
+                       var new_index = 0;
+                       
+                        var index=0;
+                        for(var child of this.el.children){
+                           //var child = this.children[index];
+                           var placeholder_dim = {
+                                width:0,
+                                height:0
+                            };
+                           if(child.classList.contains('vue-dropping-placeholder')){
+                               //found_placeholder = true;
+                               placeholder_dim = child.getBoundingClientRect();
+                               placeholder_dim.width;
+                                //continue;
+                               //console.log('found',found_placeholder, found_placeholder_before);
+                           }
+                           //var dim = child.dim;//getBoundingClientRect();
+                           var dim = child.getBoundingClientRect();
+
+                           
+                                if(top>dim.top+(dim.height/2)){
+                                    
+                                    new_index = index;
+                                }
+                            
+                           index++;
+                       }
+                       /**
+                       if(false && found_placeholder_before){
+                           new_index = parseInt(new_index);
+                       }else{
+                           **/
+                        new_index=parseInt(new_index);
+                       //}
+                       
+                       if(new_index!=this.dropping_element_index){
+                            clearTimeout(me.sortDroppingElement_timeout);
+                            var that = this;
+                            me.sortDroppingElement_timeout = setTimeout(function(){
+                                if(that.dropping_element==null){
+                                    return;
+                                }
+                                that.dropping_element_index = new_index;
+                                if(new_index==-1){
+                                    //console.log('first');
+                                    that.el.appendChild(that.dropping_element);
+                                }else 
+                                if(new_index==that.children.length){
+                                    //console.log('last');
+                                    that.el.appendChild(that.dropping_element);
+                                }else{
+                                    //console.log('before')
+                                    that.el.insertBefore(that.dropping_element,that.children[new_index]);
+                                }
+                            },12);
+                       }
                    }
                };
+               if(me.sortable){
+                   var counter=0;
+                   for(var child of el.children){
+                       
+                       child.dim = child.getBoundingClientRect();
+                       if(child!==me.$el){
+                        drop.children.push(child);//should we push our self?
+                       }else{
+                           drop.dropping_element_index = counter;
+                       }
+                       
+                      counter++;
+                   }
+               }
                me.drop_areas.push(drop);
            })
            if(this.drop_areas.length>0){
@@ -417,8 +582,8 @@ export default{
         this.containmentElement = document.querySelector(this.containment);
         
         this.cssPosition = this.dsDom.style.position;
-        console.log('ghost',this.drop_ghost);
-        //console.log(this.dsDom);
+
+        
         this.setupEventHandlers();
     }
 }
