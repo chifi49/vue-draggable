@@ -73,25 +73,25 @@ accepts any valid html tag e.x `<vuedraggable tag='li'></vuedraggable>`
 
 except 'br','script','noscript','dfn','object'
 #### zindex
-defaults: 100
+default: 100
 
 the css z-index to set to dragging elemnt
 #### axis
-defaults: 'xy'
+default: 'xy' - possible values xy, x, y
 
 in which axis to drag
 
 ex. set axis='y' if you want only vertical dragging
 #### clone
-defaults: false
+default: false
 
 while dragging the dragging element can be a clone of the original element
 #### clone_element
-defaults: null
+default: null
 
-accepts a function that returns a div element
+accepts a function that returns a dom element
 
-while dragging the dragging element can be any dom element that you return from the function
+while moving the dragging element, this element can be any dom element that you return from the function
 
 e.x.
 ```
