@@ -224,7 +224,8 @@ export default{
             }
 
 
-                
+                //console.log(diffY);
+
                 if(this.axis=='xy' || this.axis=='x'){
                     this.dragElement.style.left = finalX+'px';
                 }
@@ -264,7 +265,9 @@ export default{
                                     //get all first depth children of drop_area
                                     drop_area.sortDroppingElement({
                                         left: finalX,
-                                        top: finalY
+                                        top: finalY,
+                                        moveX: diffX, //minus going left, plus going down
+                                        movedY: diffY //minus is going up, plus going down
                                     });
                                 }
                                 this.$emit('drop_enter',{instance:this, dragElement:this.dragElement,clone:this.clone,areaElement: drop_area.el});    
@@ -273,7 +276,9 @@ export default{
                                 drop_area.sortDroppingElement(
                                     {
                                         left: finalX,
-                                        top: finalY
+                                        top: finalY,
+                                        moveX: diffX, //minus going left, plus going down
+                                        movedY: diffY //minus is going up, plus going down
                                     }
                                 );
                                 this.$emit('dropping',{instance:this, dragElement:this.dragElement, clone:this.clone, areaElement: drop_area.el});
@@ -488,6 +493,18 @@ export default{
                        //var left = params.left;
                        var top = params.top;    
                        var new_index = 0;
+
+                       var diffY = params.movedY;
+                       var direction = 'down';
+                       if(diffY<0){
+                           direction = 'up';
+                       }
+                       var placehold_dim = this.dropping_element.getBoundingClientRect();
+                       var appendTop = 0;
+                       if(direction=='up'){
+                           appendTop = parseInt(placehold_dim.height);
+                       }
+                       //console.log('appendtop',appendTop);
                        
                         var index=0;
                         for(var child of this.el.children){
@@ -507,7 +524,7 @@ export default{
                            var dim = child.getBoundingClientRect();
 
                            
-                                if(top>dim.top+(dim.height/2)){
+                                if(top + (appendTop/2) > dim.top+(dim.height/2)){
                                     
                                     new_index = index;
                                 }

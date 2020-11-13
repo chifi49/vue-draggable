@@ -115,7 +115,7 @@ export default{
     border:solid 1px #ccc;
     background-color:#efefef;
     width:100%;
-    height:200px;
+    height:300px;
     list-style:none;
     margin:0;
     padding:0;

@@ -577,12 +577,12 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=286fa7fa&
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=3e8da414&
 var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:{'vue-draggable':true,'vue-dragging':_vm.is_dragging}},[_vm._t("default")],2)}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=286fa7fa&
+// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=3e8da414&
 
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.for-each.js
 var es_array_for_each = __webpack_require__("6efa");
@@ -936,7 +936,8 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 
         if (finalX < this.containmentRect.left || finalX + this.dragElement.offsetWidth > this.containmentRect.left + this.containmentRect.width || finalY < this.containmentRect.top || finalY + this.dragElement.offsetHeight > this.containmentRect.top + this.containmentRect.height) {
           return; //do not drag outside containment
-        }
+        } //console.log(diffY);
+
 
         if (this.axis == 'xy' || this.axis == 'x') {
           this.dragElement.style.left = finalX + 'px';
@@ -986,7 +987,11 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
                   //get all first depth children of drop_area
                   drop_area.sortDroppingElement({
                     left: finalX,
-                    top: finalY
+                    top: finalY,
+                    moveX: diffX,
+                    //minus going left, plus going down
+                    movedY: diffY //minus is going up, plus going down
+
                   });
                 }
 
@@ -1000,7 +1005,11 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
               } else {
                 drop_area.sortDroppingElement({
                   left: finalX,
-                  top: finalY
+                  top: finalY,
+                  moveX: diffX,
+                  //minus going left, plus going down
+                  movedY: diffY //minus is going up, plus going down
+
                 });
                 this.$emit('dropping', {
                   instance: this,
@@ -1248,6 +1257,21 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
             //var left = params.left;
             var top = params.top;
             var new_index = 0;
+            var diffY = params.movedY;
+            var direction = 'down';
+
+            if (diffY < 0) {
+              direction = 'up';
+            }
+
+            var placehold_dim = this.dropping_element.getBoundingClientRect();
+            var appendTop = 0;
+
+            if (direction == 'up') {
+              appendTop = parseInt(placehold_dim.height);
+            } //console.log('appendtop',appendTop);
+
+
             var index = 0;
 
             var _iterator2 = _createForOfIteratorHelper(this.el.children),
@@ -1272,7 +1296,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 
                 var dim = child.getBoundingClientRect();
 
-                if (top > dim.top + dim.height / 2) {
+                if (top + appendTop / 2 > dim.top + dim.height / 2) {
                   new_index = index;
                 }
 
