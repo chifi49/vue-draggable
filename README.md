@@ -117,7 +117,7 @@ the opacity of the dragging element
 default: '' (empty)
 
 accepts a css selector which will serve as the handle for dragging and not the original element
-#### drop_areas
+#### dropareas
 default: []
 
 the areas where the dragging element can be dropped
@@ -131,6 +131,16 @@ the area that the dragging element is allowed to be dragged
 default: false
 
 if the dragging element can be sorted within its parent
+
+#### classes
+default: []
+
+custom classes that you want to pass and append in draggable in class attribute
+
+#### custom_data
+default: {}
+
+an object with any data that you wish to pass and receive in back from callbacks with property name "customData"
 
 # Callbacks
 #### drag_started

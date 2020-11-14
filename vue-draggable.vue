@@ -1,5 +1,5 @@
 <template>
-    <component :is="tag" :class="component_classes">
+    <component :is="tag" :class="component_classes" @click="clicked">
         <slot></slot>
     </component>
 </template>
@@ -8,6 +8,13 @@ import Vue from 'vue';
 export default{
     name:'vue-draggable',
     props:{
+        custom_data:{
+            required:false,
+            type:Object,
+            default:function(){
+                return {}
+            }
+        },
         classes:{
             required:false,
             type:Array,
@@ -136,6 +143,9 @@ export default{
         }
     },
     methods:{
+        clicked(event){
+            this.$emit('clicked',{instance:this,customData: this.custom_data,nativeEvent:event});
+        },
         dragStarted(event){
             event.preventDefault();
             
@@ -220,10 +230,12 @@ export default{
                     }
                     document.body.appendChild(this.dragElement);
 
-                    this.$emit('drag_started',{instance:this,dragElement: this.dragElement, clone: this.clone})
+                    this.$emit('drag_started',{instance:this,dragElement: this.dragElement, clone: this.clone,
+                        customData: this.custom_data })
                 }else if(this.dragElement==null){
                     this.dragElement = this.dsDom;
-                    this.$emit('drag_started',{instance:this,dragElement: this.dragElement, clone:this.clone})
+                    this.$emit('drag_started',{instance:this,dragElement: this.dragElement, clone:this.clone,
+                        customData: this.custom_data })
                 }
                 this.dragElement.style.position='absolute';
                 this.dragElement.style.zIndex = this.zindex;
@@ -247,7 +259,13 @@ export default{
                     this.dragElement.style.top = finalY+'px';
                 }
 
-                this.$emit('dragging',{instance:this, dragElement: this.dragElement, clone: this.clone, coords:{x:finalX,y:finalY},nativeEvent: event})
+                this.$emit('dragging',
+                {instance:this, 
+                dragElement: this.dragElement, 
+                clone: this.clone, 
+                coords:{x:finalX,y:finalY},
+                nativeEvent: event,
+                customData: this.custom_data })
 
                 if(this.isDroppable){
                     //find in which droppable we are contained
@@ -284,7 +302,13 @@ export default{
                                         movedY: diffY //minus is going up, plus going down
                                     });
                                 }
-                                this.$emit('drop_enter',{instance:this, dragElement:this.dragElement,clone:this.clone,areaElement: drop_area.el});    
+                                this.$emit('drop_enter',
+                                {instance:this, 
+                                dragElement:this.dragElement,
+                                clone:this.clone,
+                                areaElement: drop_area.el,
+                                customData: this.custom_data 
+                                });    
                                 this.drop_areas[d] = drop_area;
                             }else{
                                 drop_area.sortDroppingElement(
@@ -295,7 +319,13 @@ export default{
                                         movedY: diffY //minus is going up, plus going down
                                     }
                                 );
-                                this.$emit('dropping',{instance:this, dragElement:this.dragElement, clone:this.clone, areaElement: drop_area.el});
+                                this.$emit('dropping',
+                                {instance:this, 
+                                dragElement:this.dragElement, 
+                                clone:this.clone, 
+                                areaElement: drop_area.el,
+                                customData: this.custom_data 
+                                });
                             }
                         }else{
                             //is_contained = false;
@@ -360,7 +390,17 @@ export default{
                     if(this.sortable){
                         index = this.dropped_area.dropping_element_index;
                     }
-                    this.$emit('dropped',{instance:this,areaElement:this.dropped_area.el,dragElement:drag_element,clone:this.clone,sortable: this.sortable, newIndex: index })
+                    this.$emit('dropped',
+                    {
+                        instance:this,
+                        areaElement:this.dropped_area.el,
+                        dragElement:drag_element,
+                        clone:this.clone,
+                        sortable: this.sortable, 
+                        newIndex: index,
+                        customData: this.custom_data 
+                    }
+                    )
                     
                     //this.dropped_area.el.classList.remove('vue-dropping');
 
@@ -396,7 +436,7 @@ export default{
             this.isDroppable = false;
             //this.isDragging = false;
             this.dropped_area = null;
-            this.$emit('drag_ended',{instance:this});
+            this.$emit('drag_ended',{instance:this,customData: this.custom_data });
             this.resetDropAreas();
             document.removeEventListener('mousemove',this.dragMove);
             document.removeEventListener('mouseup',this.dragEnd);

@@ -577,12 +577,12 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=baf8a8d2&
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:_vm.component_classes},[_vm._t("default")],2)}
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=48d51a80&
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:_vm.component_classes,on:{"click":_vm.clicked}},[_vm._t("default")],2)}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=baf8a8d2&
+// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=48d51a80&
 
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.for-each.js
 var es_array_for_each = __webpack_require__("6efa");
@@ -705,6 +705,13 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 /* harmony default export */ var lib_vue_loader_options_vue_draggablevue_type_script_lang_js_ = ({
   name: 'vue-draggable',
   props: {
+    custom_data: {
+      required: false,
+      type: Object,
+      "default": function _default() {
+        return {};
+      }
+    },
     classes: {
       required: false,
       type: Array,
@@ -844,6 +851,13 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
     }
   },
   methods: {
+    clicked: function clicked(event) {
+      this.$emit('clicked', {
+        instance: this,
+        customData: this.custom_data,
+        nativeEvent: event
+      });
+    },
     dragStarted: function dragStarted(event) {
       event.preventDefault();
 
@@ -937,14 +951,16 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
           this.$emit('drag_started', {
             instance: this,
             dragElement: this.dragElement,
-            clone: this.clone
+            clone: this.clone,
+            customData: this.custom_data
           });
         } else if (this.dragElement == null) {
           this.dragElement = this.dsDom;
           this.$emit('drag_started', {
             instance: this,
             dragElement: this.dragElement,
-            clone: this.clone
+            clone: this.clone,
+            customData: this.custom_data
           });
         }
 
@@ -974,7 +990,8 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
             x: finalX,
             y: finalY
           },
-          nativeEvent: event
+          nativeEvent: event,
+          customData: this.custom_data
         });
 
         if (this.isDroppable) {
@@ -1018,7 +1035,8 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
                   instance: this,
                   dragElement: this.dragElement,
                   clone: this.clone,
-                  areaElement: drop_area.el
+                  areaElement: drop_area.el,
+                  customData: this.custom_data
                 });
                 this.drop_areas[d] = drop_area;
               } else {
@@ -1034,7 +1052,8 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
                   instance: this,
                   dragElement: this.dragElement,
                   clone: this.clone,
-                  areaElement: drop_area.el
+                  areaElement: drop_area.el,
+                  customData: this.custom_data
                 });
               }
             } else {//is_contained = false;
@@ -1108,7 +1127,8 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
             dragElement: drag_element,
             clone: this.clone,
             sortable: this.sortable,
-            newIndex: index
+            newIndex: index,
+            customData: this.custom_data
           }); //this.dropped_area.el.classList.remove('vue-dropping');
           //remove the dropping_element
           //this.dropped_area.el.removeChild(this.dropped_area.dropping_element);
@@ -1147,7 +1167,8 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 
       this.dropped_area = null;
       this.$emit('drag_ended', {
-        instance: this
+        instance: this,
+        customData: this.custom_data
       });
       this.resetDropAreas();
       document.removeEventListener('mousemove', this.dragMove);
