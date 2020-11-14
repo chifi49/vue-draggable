@@ -5,7 +5,7 @@
             <tr valign="top">
                 <td width="45%">
                     <ul class="vue-droppable" id="vue-droppable-1">
-                        <vuedraggable tag="li" :sortable="true"
+                        <vuedraggable tag="li" :sortable="true" :classes="['.i-am-a-draggable']"
                          draghandle=".vue-draggable-handle"
                         axis="xy" :dropareas="droptoall" :offset="offset" :clone="false">
                             <div style="width:200px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me

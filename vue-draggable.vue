@@ -1,5 +1,5 @@
 <template>
-    <component :is="tag" :class="{'vue-draggable':true,'vue-dragging':is_dragging}">
+    <component :is="tag" :class="component_classes">
         <slot></slot>
     </component>
 </template>
@@ -8,6 +8,13 @@ import Vue from 'vue';
 export default{
     name:'vue-draggable',
     props:{
+        classes:{
+            required:false,
+            type:Array,
+            default:function(){
+                return []
+            }
+        },
         tag:{
             required:false,
             type:String,
@@ -114,6 +121,13 @@ export default{
         }
     },
     computed:{
+        component_classes(){
+            var _classes = {'vue-draggable':true, 'vue-dragging':this.is_dragging};
+            for(var i=0;i<this.classes.length;i++){
+                _classes[this.classes[i]] = true;
+            }
+            return _classes;
+        },
         is_dragging(){
             return this.isDragging;
         },
