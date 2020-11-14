@@ -35,10 +35,16 @@
                         :dropareas="droptoall" :offset="offset" :clone="false">
                             <div style="width:200px;height:30px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me 5</div>
                         </vuedraggable>
+
+                        
                     </ul>
                 </td>
                 <td width="45%">
                     <ul class="vue-droppable2" id="vue-droppable-2">
+                        <vuedraggable :is_droparea="true" tag="li" axis="xy" :dropareas="['.vue-droppable2']" :sortable="true" :offset="offset" :clone="false">
+                            <ul class="vue-droppable2 vue-droppable2-child">
+                                </ul>
+                        </vuedraggable>
                     </ul>
                 </td>
             </tr>
@@ -94,7 +100,7 @@ export default{
             params.instance;
             params.el;
             var div = document.createElement('div');
-            div.style.cssText = 'height:50px;width:150px;background-color:red;color:white;';
+            div.style.cssText = 'height:50px;width:150px;background-color:red;color:white;margin-top:10px;';
             div.innerHTML = 'copy';
             return div;
         }
@@ -115,11 +121,15 @@ export default{
     border:solid 1px #ccc;
     background-color:#efefef;
     width:100%;
-    height:300px;
+    height:500px;
     list-style:none;
     margin:0;
     padding:0;
     padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:5px;
+}
+.vue-droppable2-child{
+    height:200px;
+    max-width:90%;
 }
 ul li{
     margin-top:10px;

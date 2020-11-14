@@ -8,6 +8,11 @@ import Vue from 'vue';
 export default{
     name:'vue-draggable',
     props:{
+        is_droparea:{
+            required:false,
+            type:Boolean,
+            default:false
+        },
         custom_data:{
             required:false,
             type:Object,
@@ -147,6 +152,7 @@ export default{
             this.$emit('clicked',{instance:this,customData: this.custom_data,nativeEvent:event});
         },
         dragStarted(event){
+            event.stopPropagation();
             event.preventDefault();
             
 
@@ -183,6 +189,8 @@ export default{
             document.addEventListener('touchmove',this.dragMove);
             document.addEventListener('mouseup',this.dragEnd);
             document.addEventListener('touchend',this.dragEnd);
+
+            return false;
         },
         viewportSize(){
             var view = document.createElement( "div" );
@@ -196,6 +204,7 @@ export default{
             return dims;
         },
         dragMove(event){
+            event.stopPropagation();
             event.preventDefault();
 
             this.dropped_area = null;
@@ -470,8 +479,21 @@ export default{
                 return;
             }
            var areas = document.querySelectorAll(this.dropareas.join(','));
+           var my_areas = [];
+           //find if me or my child have drop areas and do not include them in sorting
+           this.is_droparea = true;
+           if(this.is_droparea){
+               var myareas=this.$el.querySelectorAll(this.dropareas.join(','));
+               [].forEach.call(myareas,function(myel){
+                   my_areas.push(myel);
+               })
+           }
            var me = this;
            [].forEach.call(areas,function(el){
+               if(my_areas.indexOf(el)!=-1){
+                   //console.log('found my descendants');
+                   return;
+               }
                var drop = {
                    el: el,
                    dim: el.getBoundingClientRect(),

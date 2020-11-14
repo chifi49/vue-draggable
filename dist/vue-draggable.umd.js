@@ -586,12 +586,12 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=48d51a80&
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=5a849bea&
 var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:_vm.component_classes,on:{"click":_vm.clicked}},[_vm._t("default")],2)}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=48d51a80&
+// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=5a849bea&
 
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.for-each.js
 var es_array_for_each = __webpack_require__("6efa");
@@ -714,6 +714,11 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 /* harmony default export */ var lib_vue_loader_options_vue_draggablevue_type_script_lang_js_ = ({
   name: 'vue-draggable',
   props: {
+    is_droparea: {
+      required: false,
+      type: Boolean,
+      "default": false
+    },
     custom_data: {
       required: false,
       type: Object,
@@ -868,6 +873,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       });
     },
     dragStarted: function dragStarted(event) {
+      event.stopPropagation();
       event.preventDefault();
 
       if (event.which && event.which == 3 || event.button && event.button == 2) {
@@ -903,6 +909,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       document.addEventListener('touchmove', this.dragMove);
       document.addEventListener('mouseup', this.dragEnd);
       document.addEventListener('touchend', this.dragEnd);
+      return false;
     },
     viewportSize: function viewportSize() {
       var view = document.createElement("div");
@@ -920,6 +927,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       return dims;
     },
     dragMove: function dragMove(event) {
+      event.stopPropagation();
       event.preventDefault();
       this.dropped_area = null;
       var pageX = event.touches && event.touches.length > 0 ? event.touches[0].pageX : event.pageX;
@@ -1214,8 +1222,24 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       }
 
       var areas = document.querySelectorAll(this.dropareas.join(','));
+      var my_areas = []; //find if me or my child have drop areas and do not include them in sorting
+
+      this.is_droparea = true;
+
+      if (this.is_droparea) {
+        var myareas = this.$el.querySelectorAll(this.dropareas.join(','));
+        [].forEach.call(myareas, function (myel) {
+          my_areas.push(myel);
+        });
+      }
+
       var me = this;
       [].forEach.call(areas, function (el) {
+        if (my_areas.indexOf(el) != -1) {
+          //console.log('found my descendants');
+          return;
+        }
+
         var drop = {
           el: el,
           dim: el.getBoundingClientRect(),
