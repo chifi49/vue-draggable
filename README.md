@@ -155,3 +155,5 @@ called when the draggable enters a droppable area (called only once)
 called while the dragable is being dragged inside the droppable area
 #### dropped
 called when the draggable element is dropped
+#### clicked
+called when the draggable is clicked
