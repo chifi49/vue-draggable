@@ -4,7 +4,7 @@
             <tr valign="top">
                 <td width="33%">
                     <ul class="vue-droppable">
-                    <vuedraggable tag="li"   :offset="offset">
+                    <vuedraggable @clicked="clicked" tag="li"   :offset="offset">
                         <div style="width:200px;background-color:#000;color:#fff;">you can drag me</div>
                     </vuedraggable>
                     
@@ -31,6 +31,9 @@ export default{
         }
     },
     methods:{
+        clicked(){
+            
+        },
         dropped(params){
             console.log(params);
             console.log('dropped in to area')
