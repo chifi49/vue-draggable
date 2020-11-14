@@ -481,13 +481,13 @@ export default{
            var areas = document.querySelectorAll(this.dropareas.join(','));
            var my_areas = [];
            //find if me or my child have drop areas and do not include them in sorting
-           this.is_droparea = true;
-           if(this.is_droparea){
+           //this.is_droparea = true;
+           //if(this.is_droparea){
                var myareas=this.$el.querySelectorAll(this.dropareas.join(','));
                [].forEach.call(myareas,function(myel){
                    my_areas.push(myel);
                })
-           }
+           //}
            var me = this;
            [].forEach.call(areas,function(el){
                if(my_areas.indexOf(el)!=-1){
