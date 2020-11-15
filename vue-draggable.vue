@@ -129,7 +129,8 @@ export default{
             drop_areas:[],
             cssPosition:'',
             sortDroppingElement_timeout:0,
-            zIndex:0
+            zIndex:0,
+            currentIndex:0 //my index as a child at the current droppable
         }
     },
     computed:{
@@ -207,6 +208,7 @@ export default{
                 this.containmentRect = this.containmentElement.getBoundingClientRect();
             }
 
+            this.currentIndex = Array.prototype.indexOf.call(this.$el.parentNode.children,this.$el);
             document.addEventListener('mousemove',this.dragMove);
             document.addEventListener('touchmove',this.dragMove);
             document.addEventListener('mouseup',this.dragEnd);
@@ -419,6 +421,7 @@ export default{
                         dragElement:drag_element,
                         clone:this.clone,
                         sortable: this.sortable, 
+                        previousIndex: this.currentIndex,
                         newIndex: index,
                         customData: this.custom_data 
                     }
@@ -493,7 +496,7 @@ export default{
             }
            var areas = document.querySelectorAll(this.dropareas.join(','));
            var my_areas = [];
-           //find if me or my child have drop areas and do not include them in sorting
+           //find if me or my childs have drop areas and do not include them in sorting
            //this.is_droparea = true;
            //if(this.is_droparea){
                var myareas=this.$el.querySelectorAll(this.dropareas.join(','));
