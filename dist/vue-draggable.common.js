@@ -577,12 +577,12 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=2df196ab&
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=cb4e3dc6&
 var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:_vm.component_classes,on:{"click":_vm.clicked}},[_vm._t("default")],2)}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=2df196ab&
+// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=cb4e3dc6&
 
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.for-each.js
 var es_array_for_each = __webpack_require__("6efa");
@@ -863,9 +863,24 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
         nativeEvent: event
       });
     },
+    viewportSize: function viewportSize() {
+      var view = document.createElement("div");
+      view.style.cssText = "position: fixed;top: 0;left: 0;bottom: 0;right: 0;z-index:-1,";
+      document.documentElement.insertBefore(view, document.documentElement.firstChild);
+      var dims = {
+        width: view.offsetWidth,
+        height: view.offsetHeight,
+        x: 0,
+        y: 0,
+        left: 0,
+        top: 0
+      };
+      document.documentElement.removeChild(view);
+      return dims;
+    },
     dragStarted: function dragStarted(event) {
       event.stopPropagation();
-      event.preventDefault();
+      event.preventDefault(); //console.log(event);
 
       if (event.which && event.which == 3 || event.button && event.button == 2) {
         //should not detect right clicks as mousedown for dragging
@@ -876,12 +891,17 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       this.dropped_area = null;
       this.dragStartX = event.touches && event.touches.length > 0 ? event.touches[0].pageX : event.pageX;
       this.dragStartY = event.touches && event.touches.length > 0 ? event.touches[0].pageY : event.pageY;
+      var nativeEvent = event.touches && event.touches.length > 0 ? event.touches[0] : event;
+      nativeEvent; //console.log(nativeEvent);
+      //console.log(this.dragStartX,this.dragStartY);
+
       this.$vdraggable.current = this;
       var dim = this.dsDom.getBoundingClientRect();
       this.elementX = dim.left;
       this.elementY = dim.top;
-      this.elementDiffX = event.pageX - dim.left;
-      this.elementDiffY = event.pageY - dim.top;
+      this.elementDiffX = this.dragStartX - dim.left;
+      this.elementDiffY = this.dragStartY - dim.top; //console.log(window.getComputedStyle(this.dsDom,"").getPropertyValue('margin-top'));
+      //console.log(dim.top,dim.y);
 
       if (this.containment == 'body') {
         var rect = this.containmentElement.getBoundingClientRect();
@@ -901,21 +921,6 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       document.addEventListener('mouseup', this.dragEnd);
       document.addEventListener('touchend', this.dragEnd);
       return false;
-    },
-    viewportSize: function viewportSize() {
-      var view = document.createElement("div");
-      view.style.cssText = "position: fixed;top: 0;left: 0;bottom: 0;right: 0;z-index:-1,";
-      document.documentElement.insertBefore(view, document.documentElement.firstChild);
-      var dims = {
-        width: view.offsetWidth,
-        height: view.offsetHeight,
-        x: 0,
-        y: 0,
-        left: 0,
-        top: 0
-      };
-      document.documentElement.removeChild(view);
-      return dims;
     },
     dragMove: function dragMove(event) {
       event.stopPropagation();
@@ -1270,6 +1275,8 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
           findDroppingElement_index: function findDroppingElement_index(params) {
             var index = 0;
             var top = params.top;
+            top;
+            var mydim = me.dragElement.getBoundingClientRect();
             var new_index = 0;
 
             var _iterator = _createForOfIteratorHelper(this.el.children),
@@ -1285,27 +1292,18 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
                 };
 
                 if (child.classList.contains('vue-dropping-placeholder')) {
-                  //found_placeholder = true;
                   placeholder_dim = child.getBoundingClientRect();
-                  placeholder_dim.width; //continue;
-                  //console.log('found',found_placeholder, found_placeholder_before);
-                } //var dim = child.dim;//getBoundingClientRect();
+                  placeholder_dim.width;
+                }
 
+                var dim = child.getBoundingClientRect(); //if(top>dim.top+(dim.height/2)){
 
-                var dim = child.getBoundingClientRect();
-
-                if (top > dim.top + dim.height / 2) {
+                if (mydim.top + mydim.height / 2 > dim.top + dim.height / 2) {
                   new_index = index;
                 }
 
                 index++;
               }
-              /**
-              if(false && found_placeholder_before){
-                  new_index = parseInt(new_index);
-              }else{
-                  **/
-
             } catch (err) {
               _iterator.e(err);
             } finally {
@@ -1315,9 +1313,43 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
             new_index = parseInt(new_index);
             return new_index;
           },
+          getPlaceholderCurrentIndex: function getPlaceholderCurrentIndex() {
+            //return Array.prototype.indexOf.call(this.el.children,this.dropping_element);
+            var counter = 0;
+
+            var _iterator2 = _createForOfIteratorHelper(this.el.children),
+                _step2;
+
+            try {
+              for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                var child = _step2.value;
+
+                if (child == me.dsDom) {
+                  continue;
+                }
+
+                if (child == this.dropping_element) {
+                  return counter;
+                }
+
+                counter++;
+              }
+            } catch (err) {
+              _iterator2.e(err);
+            } finally {
+              _iterator2.f();
+            }
+
+            return counter;
+          },
           sortDroppingElement: function sortDroppingElement(params) {
+            //console.log('children length',this.el.children.length);
+            //console.log('current index',this.getPlaceholderCurrentIndex());
+            //console.log('child index at',this.el.children[0]);
             //var left = params.left;
             var top = params.top;
+            top;
+            var mydim = me.dragElement.getBoundingClientRect();
             var new_index = 0;
             var diffY = params.movedY;
             var direction = 'down';
@@ -1330,53 +1362,55 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
             var appendTop = 0;
 
             if (direction == 'up') {
-              appendTop = parseInt(placehold_dim.height);
+              placehold_dim; //appendTop = parseInt(placehold_dim.height);
+
+              appendTop;
             } //console.log('appendtop',appendTop);
 
 
             var index = 0;
 
-            var _iterator2 = _createForOfIteratorHelper(this.el.children),
-                _step2;
+            var _iterator3 = _createForOfIteratorHelper(this.el.children),
+                _step3;
 
             try {
-              for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                var child = _step2.value;
-                //var child = this.children[index];
+              for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+                var child = _step3.value;
+
+                //do not check myself for positioning, skip me
+                if (child == me.dragElement) {
+                  continue;
+                } else if (child == this.dropping_element) {
+                  index++;
+                  continue;
+                }
+
                 var placeholder_dim = {
                   width: 0,
                   height: 0
                 };
 
                 if (child.classList.contains('vue-dropping-placeholder')) {
-                  //found_placeholder = true;
                   placeholder_dim = child.getBoundingClientRect();
-                  placeholder_dim.width; //continue;
-                  //console.log('found',found_placeholder, found_placeholder_before);
+                  placeholder_dim.width;
                 } //var dim = child.dim;//getBoundingClientRect();
 
 
-                var dim = child.getBoundingClientRect();
+                var dim = child.getBoundingClientRect(); // if(top + (appendTop/2) > dim.top+(dim.height/2)){
 
-                if (top + appendTop / 2 > dim.top + dim.height / 2) {
+                if (mydim.top + mydim.height / 2 > dim.top + dim.height / 2) {
                   new_index = index;
                 }
 
                 index++;
               }
-              /**
-              if(false && found_placeholder_before){
-                  new_index = parseInt(new_index);
-              }else{
-                  **/
-
             } catch (err) {
-              _iterator2.e(err);
+              _iterator3.e(err);
             } finally {
-              _iterator2.f();
+              _iterator3.f();
             }
 
-            new_index = parseInt(new_index); //}
+            new_index = parseInt(new_index);
 
             if (new_index != this.dropping_element_index) {
               clearTimeout(me.sortDroppingElement_timeout);
@@ -1398,7 +1432,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
                   //console.log('before')
                   that.el.insertBefore(that.dropping_element, that.children[new_index]);
                 }
-              }, 12);
+              }, 25);
             }
           }
         };
@@ -1406,12 +1440,12 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
         if (me.sortable) {
           var counter = 0;
 
-          var _iterator3 = _createForOfIteratorHelper(el.children),
-              _step3;
+          var _iterator4 = _createForOfIteratorHelper(el.children),
+              _step4;
 
           try {
-            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-              var child = _step3.value;
+            for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+              var child = _step4.value;
               child.dim = child.getBoundingClientRect();
 
               if (child !== me.$el) {
@@ -1423,9 +1457,9 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
               counter++;
             }
           } catch (err) {
-            _iterator3.e(err);
+            _iterator4.e(err);
           } finally {
-            _iterator3.f();
+            _iterator4.f();
           }
         }
 

@@ -151,10 +151,21 @@ export default{
         clicked(event){
             this.$emit('clicked',{instance:this,customData: this.custom_data,nativeEvent:event});
         },
+        viewportSize(){
+            var view = document.createElement( "div" );
+
+            view.style.cssText = "position: fixed;top: 0;left: 0;bottom: 0;right: 0;z-index:-1,";
+            document.documentElement.insertBefore( view, document.documentElement.firstChild );
+            
+            var dims = { width: view.offsetWidth, height: view.offsetHeight, x:0, y:0,left:0,top:0 };
+            document.documentElement.removeChild( view );
+            
+            return dims;
+        },
         dragStarted(event){
             event.stopPropagation();
             event.preventDefault();
-            
+            //console.log(event);
 
             if( (event.which && event.which==3) || (event.button && event.button==2)){//should not detect right clicks as mousedown for dragging
                 return;
@@ -165,13 +176,24 @@ export default{
 
             this.dragStartX = event.touches && event.touches.length>0?event.touches[0].pageX:event.pageX;
             this.dragStartY = event.touches && event.touches.length>0?event.touches[0].pageY:event.pageY;
+
+            var nativeEvent = event.touches && event.touches.length>0?event.touches[0]:event;
+            nativeEvent;
+            //console.log(nativeEvent);
+
+            //console.log(this.dragStartX,this.dragStartY);
+
             this.$vdraggable.current = this;
 
             var dim = this.dsDom.getBoundingClientRect();
             this.elementX = dim.left;
             this.elementY = dim.top;
-            this.elementDiffX = event.pageX - dim.left;
-            this.elementDiffY = event.pageY - dim.top;
+            this.elementDiffX = this.dragStartX - dim.left;
+            this.elementDiffY = this.dragStartY - dim.top;
+
+            
+            //console.log(window.getComputedStyle(this.dsDom,"").getPropertyValue('margin-top'));
+            //console.log(dim.top,dim.y);
 
             if(this.containment=='body'){
                 var rect = this.containmentElement.getBoundingClientRect();
@@ -192,17 +214,7 @@ export default{
 
             return false;
         },
-        viewportSize(){
-            var view = document.createElement( "div" );
-
-            view.style.cssText = "position: fixed;top: 0;left: 0;bottom: 0;right: 0;z-index:-1,";
-            document.documentElement.insertBefore( view, document.documentElement.firstChild );
-            
-            var dims = { width: view.offsetWidth, height: view.offsetHeight, x:0, y:0,left:0,top:0 };
-            document.documentElement.removeChild( view );
-            
-            return dims;
-        },
+        
         dragMove(event){
             event.stopPropagation();
             event.preventDefault();
@@ -532,6 +544,8 @@ export default{
                    findDroppingElement_index:function(params){
                        var index=0;
                        var top = params.top;    
+                       top;
+                       var mydim = me.dragElement.getBoundingClientRect();
                        var new_index = 0;
                         for(var child of this.el.children){
                            //var child = this.children[index];
@@ -540,34 +554,52 @@ export default{
                                 height:0
                             };
                            if(child.classList.contains('vue-dropping-placeholder')){
-                               //found_placeholder = true;
+                               
                                placeholder_dim = child.getBoundingClientRect();
                                placeholder_dim.width;
-                                //continue;
-                               //console.log('found',found_placeholder, found_placeholder_before);
+                               
                            }
-                           //var dim = child.dim;//getBoundingClientRect();
+                          
                            var dim = child.getBoundingClientRect();
 
                            
-                                if(top>dim.top+(dim.height/2)){
+                                //if(top>dim.top+(dim.height/2)){
+                                if(mydim.top+(mydim.height/2)>dim.top+(dim.height/2)){
                                     
                                     new_index = index;
                                 }
                             
                            index++;
                        }
-                       /**
-                       if(false && found_placeholder_before){
-                           new_index = parseInt(new_index);
-                       }else{
-                           **/
+                       
                         new_index=parseInt(new_index);
                         return new_index;
                    },
+                   getPlaceholderCurrentIndex:function(){
+                       //return Array.prototype.indexOf.call(this.el.children,this.dropping_element);
+                       
+                       var counter=0
+                       for(var child of this.el.children){
+                           if(child==me.dsDom){
+                               continue;
+                           }
+                           if(child==this.dropping_element){
+                               return counter;
+                           }
+                           counter++;
+                       }
+                       return counter;
+                       
+                   },
                    sortDroppingElement:function(params){
+                       //console.log('children length',this.el.children.length);
+                       //console.log('current index',this.getPlaceholderCurrentIndex());
+                       //console.log('child index at',this.el.children[0]);
                        //var left = params.left;
                        var top = params.top;    
+                       top;
+                       var mydim = me.dragElement.getBoundingClientRect();
+
                        var new_index = 0;
 
                        var diffY = params.movedY;
@@ -578,42 +610,47 @@ export default{
                        var placehold_dim = this.dropping_element.getBoundingClientRect();
                        var appendTop = 0;
                        if(direction=='up'){
-                           appendTop = parseInt(placehold_dim.height);
+                           placehold_dim;
+                           //appendTop = parseInt(placehold_dim.height);
+                           appendTop ;
                        }
                        //console.log('appendtop',appendTop);
                        
                         var index=0;
                         for(var child of this.el.children){
-                           //var child = this.children[index];
+                           
+                           //do not check myself for positioning, skip me
+                           if(child==me.dragElement){
+
+                               continue;
+                           }else if(child==this.dropping_element){
+                               index++;
+                               continue;
+                           }
                            var placeholder_dim = {
                                 width:0,
                                 height:0
                             };
                            if(child.classList.contains('vue-dropping-placeholder')){
-                               //found_placeholder = true;
+                               
                                placeholder_dim = child.getBoundingClientRect();
                                placeholder_dim.width;
-                                //continue;
-                               //console.log('found',found_placeholder, found_placeholder_before);
+                                
                            }
                            //var dim = child.dim;//getBoundingClientRect();
                            var dim = child.getBoundingClientRect();
 
                            
-                                if(top + (appendTop/2) > dim.top+(dim.height/2)){
+                               // if(top + (appendTop/2) > dim.top+(dim.height/2)){
+                                if(mydim.top + (mydim.height/2) > dim.top+(dim.height/2)){
                                     
                                     new_index = index;
                                 }
                             
                            index++;
                        }
-                       /**
-                       if(false && found_placeholder_before){
-                           new_index = parseInt(new_index);
-                       }else{
-                           **/
+                       
                         new_index=parseInt(new_index);
-                       //}
                        
                        if(new_index!=this.dropping_element_index){
                             clearTimeout(me.sortDroppingElement_timeout);
@@ -634,7 +671,7 @@ export default{
                                     //console.log('before')
                                     that.el.insertBefore(that.dropping_element,that.children[new_index]);
                                 }
-                            },12);
+                            },25);
                        }
                    }
                };

@@ -15,7 +15,7 @@
                         <vuedraggable tag="li" 
                         axis="xy" :sortable="true"
                         :dropareas="droptoall" :offset="offset" :clone="false">
-                            <div style="width:200px;height:30px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me 2</div>
+                            <div style="width:300px;height:50px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me 2</div>
                         </vuedraggable>
                         <vuedraggable :dropping_element="dropping_element" tag="li" 
                         :clone_element="clone_element" 
@@ -28,8 +28,9 @@
                         <vuedraggable tag="li" :sortable="true"
                          
                         axis="xy" :dropareas="droptoall" :offset="offset" :clone="false">
-                            <div style="width:200px;height:30px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me 4</div>
+                            <div style="width:250px;height:60px;line-height:30px;background-color:#000;color:#fff;margin:10">you can drag me 4</div>
                         </vuedraggable>
+
                         <vuedraggable tag="li" 
                         axis="xy" :sortable="true"
                         :dropareas="droptoall" :offset="offset" :clone="false">
@@ -64,7 +65,7 @@ export default{
             offset:10,
             clone:true,
             dropto:['.vue-droppable','.vue-droppable3'],
-            droptoall:['.vue-droppable2'],
+            droptoall:['.vue-droppable2','.vue-droppable'],
             ghost:true
         }
     },
