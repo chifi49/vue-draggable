@@ -415,6 +415,7 @@ export default{
                     {
                         instance:this,
                         areaElement:this.dropped_area.el,
+                        previous_areaElement: this.$el.parentNode,
                         dragElement:drag_element,
                         clone:this.clone,
                         sortable: this.sortable, 
