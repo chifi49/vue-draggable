@@ -242,7 +242,7 @@ export default{
                 }
                 if(this.clone && this.dragElement==null){
                     if(this.clone_element!=null){
-                        this.dragElement = this.clone_element({instance:this,el: this.dsDom});
+                        this.dragElement = this.clone_element({instance:this,el: this.dsDom, customData: this.custom_data});
                     }else{
                         var dim = this.dsDom.getBoundingClientRect();
                         this.dragElement = this.dsDom.cloneNode(true);
