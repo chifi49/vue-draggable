@@ -150,6 +150,7 @@ export default{
     },
     methods:{
         clicked(event){
+            event.preventDefault();
             this.$emit('clicked',{instance:this,customData: this.custom_data,nativeEvent:event});
         },
         viewportSize(){
@@ -384,6 +385,7 @@ export default{
             }//if(this.isDragging)
         },
         dragEnd(event){
+            event.stopPropagation();
             event.preventDefault();
             
             /** CHECK IF WE WERE DRAGGING vis isDragging, because might never started */
@@ -464,14 +466,18 @@ export default{
             this.$emit('drag_ended',{instance:this,customData: this.custom_data });
             this.resetDropAreas();
             document.removeEventListener('mousemove',this.dragMove);
+            document.removeEventListener('touchmove',this.dragMove);
             document.removeEventListener('mouseup',this.dragEnd);
+            document.removeEventListener('touchend',this.dragEnd);
+        },
+        dragStart_prevent(event){
+            event.stopPropagation();
+            event.preventDefault();
         },
         setupEventHandlers(){
             this.domHandle.addEventListener('mousedown',this.dragStarted)
             this.domHandle.addEventListener('touchstart',this.dragStarted);
-            this.domHandle.addEventListener('dragstart',(event)=>{
-                event.preventDefault();
-            } )
+            this.domHandle.addEventListener('dragstart',this.dragStart_prevent)
         },
         getId(){
             var d = new Date();
@@ -708,6 +714,11 @@ export default{
             }
             
             return false;
+        },
+        removeEventHandlers(){
+            this.domHandle.removeEventListener('mousedown',this.dragStarted)
+            this.domHandle.removeEventListener('touchstart',this.dragStarted);
+            this.domHandle.removeEventListener('dragstart',this.dragStart_prevent)
         }
     },
     created(){
@@ -722,31 +733,41 @@ export default{
         this.$vdraggable.creations++;
         this.$vdraggable.instances++;
     },
-    destroy(){
+    destroyed(){
         this.$vdraggable.instances--;
         this.removeEventHandlers();
+        //console.log('destroyed');
     },
     mounted(){
         //console.log(this.$slots.default);
-        if(typeof this.$slots.default!=='undefined' && this.$slots.default.length>0){
+        
+        
+        this.$nextTick(()=>{
+            if(typeof this.$slots.default!=='undefined' && this.$slots.default.length>0){
             //console.log(this.$slots.default);
-            this.dsDom = this.$el;//this.$slots.default[0].elm;
-        }
-        if(this.draghandle!='' && this.dsDom!=null){
-            this.domHandle = this.dsDom.querySelector(this.draghandle);
-        }else if(this.dsDom!=null && this.draghandle==''){
-            this.domHandle = this.dsDom;
-        }
-        if(this.dropareas.length>0){
-            this.isDroppable = true;
-        }
-        
-        this.containmentElement = document.querySelector(this.containment);
-        
-        this.cssPosition = this.dsDom.style.position;
-        this.zIndex = this.dsDom.style.zIndex;
-        
-        this.setupEventHandlers();
+            //this.$slots.default[0].elm;
+            }
+            this.dsDom = this.$el;
+            if(this.draghandle!='' && this.dsDom!=null){
+                //this.domHandle = this.dsDom.querySelector(this.draghandle);
+                //console.log(this.draghandle);
+                //var handle = this.draghandle.replace(/^\./,'');
+                this.domHandle = this.$el.querySelector(this.draghandle);// document.getElementById('component-drag-handle-'+this.custom_data.uuid);
+                //console.log(this.domHandle);
+            }
+            if(this.dsDom!=null && (this.draghandle=='' || this.draghandle==null || typeof this.draghandle=='undefined')){
+                this.domHandle = this.dsDom;
+            }
+            if(this.dropareas.length>0){
+                this.isDroppable = true;
+            }
+            
+            this.containmentElement = document.querySelector(this.containment);
+            
+            this.cssPosition = this.dsDom.style.position;
+            this.zIndex = this.dsDom.style.zIndex;
+            this.setupEventHandlers()
+        })
     }
 }
 </script>

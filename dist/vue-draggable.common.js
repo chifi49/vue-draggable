@@ -577,12 +577,12 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=4a999830&
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=a1d92614&
 var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:_vm.component_classes,on:{"click":_vm.clicked}},[_vm._t("default")],2)}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=4a999830&
+// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=a1d92614&
 
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.for-each.js
 var es_array_for_each = __webpack_require__("6efa");
@@ -859,6 +859,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
   },
   methods: {
     clicked: function clicked(event) {
+      event.preventDefault();
       this.$emit('clicked', {
         instance: this,
         customData: this.custom_data,
@@ -1106,6 +1107,7 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
 
     },
     dragEnd: function dragEnd(event) {
+      event.stopPropagation();
       event.preventDefault();
       /** CHECK IF WE WERE DRAGGING vis isDragging, because might never started */
       //console.log(event);
@@ -1191,14 +1193,18 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       });
       this.resetDropAreas();
       document.removeEventListener('mousemove', this.dragMove);
+      document.removeEventListener('touchmove', this.dragMove);
       document.removeEventListener('mouseup', this.dragEnd);
+      document.removeEventListener('touchend', this.dragEnd);
+    },
+    dragStart_prevent: function dragStart_prevent(event) {
+      event.stopPropagation();
+      event.preventDefault();
     },
     setupEventHandlers: function setupEventHandlers() {
       this.domHandle.addEventListener('mousedown', this.dragStarted);
       this.domHandle.addEventListener('touchstart', this.dragStarted);
-      this.domHandle.addEventListener('dragstart', function (event) {
-        event.preventDefault();
-      });
+      this.domHandle.addEventListener('dragstart', this.dragStart_prevent);
     },
     getId: function getId() {
       var d = new Date();
@@ -1484,6 +1490,11 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       }
 
       return false;
+    },
+    removeEventHandlers: function removeEventHandlers() {
+      this.domHandle.removeEventListener('mousedown', this.dragStarted);
+      this.domHandle.removeEventListener('touchstart', this.dragStarted);
+      this.domHandle.removeEventListener('dragstart', this.dragStart_prevent);
     }
   },
   created: function created() {
@@ -1499,31 +1510,43 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
     this.$vdraggable.creations++;
     this.$vdraggable.instances++;
   },
-  destroy: function destroy() {
+  destroyed: function destroyed() {
     this.$vdraggable.instances--;
-    this.removeEventHandlers();
+    this.removeEventHandlers(); //console.log('destroyed');
   },
   mounted: function mounted() {
+    var _this = this;
+
     //console.log(this.$slots.default);
-    if (typeof this.$slots["default"] !== 'undefined' && this.$slots["default"].length > 0) {
-      //console.log(this.$slots.default);
-      this.dsDom = this.$el; //this.$slots.default[0].elm;
-    }
+    this.$nextTick(function () {
+      if (typeof _this.$slots["default"] !== 'undefined' && _this.$slots["default"].length > 0) {//console.log(this.$slots.default);
+        //this.$slots.default[0].elm;
+      }
 
-    if (this.draghandle != '' && this.dsDom != null) {
-      this.domHandle = this.dsDom.querySelector(this.draghandle);
-    } else if (this.dsDom != null && this.draghandle == '') {
-      this.domHandle = this.dsDom;
-    }
+      _this.dsDom = _this.$el;
 
-    if (this.dropareas.length > 0) {
-      this.isDroppable = true;
-    }
+      if (_this.draghandle != '' && _this.dsDom != null) {
+        //this.domHandle = this.dsDom.querySelector(this.draghandle);
+        //console.log(this.draghandle);
+        //var handle = this.draghandle.replace(/^\./,'');
+        _this.domHandle = _this.$el.querySelector(_this.draghandle); // document.getElementById('component-drag-handle-'+this.custom_data.uuid);
+        //console.log(this.domHandle);
+      }
 
-    this.containmentElement = document.querySelector(this.containment);
-    this.cssPosition = this.dsDom.style.position;
-    this.zIndex = this.dsDom.style.zIndex;
-    this.setupEventHandlers();
+      if (_this.dsDom != null && (_this.draghandle == '' || _this.draghandle == null || typeof _this.draghandle == 'undefined')) {
+        _this.domHandle = _this.dsDom;
+      }
+
+      if (_this.dropareas.length > 0) {
+        _this.isDroppable = true;
+      }
+
+      _this.containmentElement = document.querySelector(_this.containment);
+      _this.cssPosition = _this.dsDom.style.position;
+      _this.zIndex = _this.dsDom.style.zIndex;
+
+      _this.setupEventHandlers();
+    });
   }
 });
 // CONCATENATED MODULE: ./vue-draggable.vue?vue&type=script&lang=js&
