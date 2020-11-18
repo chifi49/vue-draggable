@@ -733,7 +733,7 @@ export default{
             this.dsDom = this.$el;//this.$slots.default[0].elm;
         }
         if(this.draghandle!='' && this.dsDom!=null){
-            this.domHandle = this.dsDom.querySelector(this.draghandle+':first-child');
+            this.domHandle = this.dsDom.querySelector(this.draghandle);
         }else if(this.dsDom!=null && this.draghandle==''){
             this.domHandle = this.dsDom;
         }
