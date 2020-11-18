@@ -42,9 +42,12 @@
                 </td>
                 <td width="45%">
                     <ul class="vue-droppable2" id="vue-droppable-2">
-                        <vuedraggable :is_droparea="true" tag="li" axis="xy" :dropareas="['.vue-droppable2']" :sortable="true" :offset="offset" :clone="false">
+                        <vuedraggable :draghandle="'.draghandle'" :is_droparea="true" tag="li" axis="xy" :dropareas="['.vue-droppable2']" :sortable="true" :offset="offset" :clone="false">
+                            <div style="position:relative" >
+                                <div style="position:absolute;right:10px;top:-10px;background-color:#000;width:20px;height:20px;" class="draghandle"></div>
                             <ul class="vue-droppable2 vue-droppable2-child">
                                 </ul>
+                            </div>
                         </vuedraggable>
                     </ul>
                 </td>
