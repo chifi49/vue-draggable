@@ -577,12 +577,12 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=a1d92614&
+// CONCATENATED MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"941e22d0-vue-loader-template"}!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/cache-loader/dist/cjs.js??ref--0-0!/Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/vue-loader/lib??vue-loader-options!./vue-draggable.vue?vue&type=template&id=f09830b2&
 var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c(_vm.tag,{tag:"component",class:_vm.component_classes,on:{"click":_vm.clicked}},[_vm._t("default")],2)}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=a1d92614&
+// CONCATENATED MODULE: ./vue-draggable.vue?vue&type=template&id=f09830b2&
 
 // EXTERNAL MODULE: /Users/fisigma/.nvm/versions/node/v12.16.1/lib/node_modules/@vue/cli-service-global/node_modules/core-js/modules/es.array.for-each.js
 var es_array_for_each = __webpack_require__("6efa");
@@ -893,7 +893,11 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       this.isDroppable = false;
       this.dropped_area = null;
       this.dragStartX = event.touches && event.touches.length > 0 ? event.touches[0].pageX : event.pageX;
-      this.dragStartY = event.touches && event.touches.length > 0 ? event.touches[0].pageY : event.pageY;
+      this.dragStartY = event.touches && event.touches.length > 0 ? event.touches[0].pageY : event.pageY; //console.log(this.dragStartY);
+
+      this.dragStartX -= window.scrollX;
+      this.dragStartY -= window.scrollY; //console.log(this.dragStartY);
+
       var nativeEvent = event.touches && event.touches.length > 0 ? event.touches[0] : event;
       nativeEvent; //console.log(nativeEvent);
       //console.log(this.dragStartX,this.dragStartY);
@@ -903,7 +907,8 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       this.elementX = dim.left;
       this.elementY = dim.top;
       this.elementDiffX = this.dragStartX - dim.left;
-      this.elementDiffY = this.dragStartY - dim.top; //console.log(window.getComputedStyle(this.dsDom,"").getPropertyValue('margin-top'));
+      this.elementDiffY = this.dragStartY - dim.top; //console.log('diff',this.elementDiffY);
+      //console.log(window.getComputedStyle(this.dsDom,"").getPropertyValue('margin-top'));
       //console.log(dim.top,dim.y);
 
       if (this.containment == 'body') {
@@ -931,7 +936,10 @@ var external_commonjs_vue_commonjs2_vue_root_Vue_default = /*#__PURE__*/__webpac
       event.preventDefault();
       this.dropped_area = null;
       var pageX = event.touches && event.touches.length > 0 ? event.touches[0].pageX : event.pageX;
-      var pageY = event.touches && event.touches.length > 0 ? event.touches[0].pageY : event.pageY;
+      var pageY = event.touches && event.touches.length > 0 ? event.touches[0].pageY : event.pageY; //console.log('p',pageY);
+      //pageY+=window.scrollY;
+      //console.log('p2',pageY);
+
       var diffX = pageX - this.dragStartX;
       var diffY = pageY - this.dragStartY;
 

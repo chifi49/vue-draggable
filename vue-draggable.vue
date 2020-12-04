@@ -178,6 +178,10 @@ export default{
 
             this.dragStartX = event.touches && event.touches.length>0?event.touches[0].pageX:event.pageX;
             this.dragStartY = event.touches && event.touches.length>0?event.touches[0].pageY:event.pageY;
+            //console.log(this.dragStartY);
+            this.dragStartX-=window.scrollX;
+            this.dragStartY-=window.scrollY;
+            //console.log(this.dragStartY);
 
             var nativeEvent = event.touches && event.touches.length>0?event.touches[0]:event;
             nativeEvent;
@@ -192,6 +196,7 @@ export default{
             this.elementY = dim.top;
             this.elementDiffX = this.dragStartX - dim.left;
             this.elementDiffY = this.dragStartY - dim.top;
+            //console.log('diff',this.elementDiffY);
 
             
             //console.log(window.getComputedStyle(this.dsDom,"").getPropertyValue('margin-top'));
@@ -226,6 +231,10 @@ export default{
             
             var pageX = event.touches && event.touches.length>0?event.touches[0].pageX:event.pageX;
             var pageY = event.touches && event.touches.length>0?event.touches[0].pageY:event.pageY;
+            //console.log('p',pageY);
+            //pageY+=window.scrollY;
+            //console.log('p2',pageY);
+
             var diffX = pageX - this.dragStartX;
             var diffY = pageY - this.dragStartY;
             if(this.axis=='xy' && (Math.abs(diffX)>this.offset || Math.abs(diffY)>this.offset ) ){

@@ -4,6 +4,7 @@
         <table width="100%">
             <tr valign="top">
                 <td width="45%">
+                    <br /><br /><br /><br /><br /><br /><br /><br /><br />
                     <ul class="vue-droppable" id="vue-droppable-1">
                         <vuedraggable tag="li" :sortable="true" :classes="['.i-am-a-draggable']"
                          draghandle=".vue-draggable-handle"
